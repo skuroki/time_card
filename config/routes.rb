@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root to: 'attendances#index'
   resources :rest_finishes
   resources :rests
   resources :clock_outs
