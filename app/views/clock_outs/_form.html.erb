@@ -1,0 +1,27 @@
+<%= form_with(model: clock_out) do |form| %>
+  <% if clock_out.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(clock_out.errors.count, "error") %> prohibited this clock_out from being saved:</h2>
+
+      <ul>
+        <% clock_out.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :attendance_id %>
+    <%= form.text_field :attendance_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :finished_at %>
+    <%= form.datetime_select :finished_at %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
