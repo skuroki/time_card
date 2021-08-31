@@ -1,0 +1,27 @@
+<%= form_with(model: rest_finish) do |form| %>
+  <% if rest_finish.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(rest_finish.errors.count, "error") %> prohibited this rest_finish from being saved:</h2>
+
+      <ul>
+        <% rest_finish.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :rest_id %>
+    <%= form.text_field :rest_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :finished_at %>
+    <%= form.datetime_select :finished_at %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

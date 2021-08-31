@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :rest_finishes
   resources :rests
   resources :clock_outs
   resources :attendances
