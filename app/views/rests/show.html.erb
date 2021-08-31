@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Attendance:</strong>
+  <%= @rest.attendance_id %>
+</p>
+
+<p>
+  <strong>Started at:</strong>
+  <%= @rest.started_at %>
+</p>
+
+<%= link_to 'Edit', edit_rest_path(@rest) %> |
+<%= link_to 'Back', rests_path %>

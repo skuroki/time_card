@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_31_093831) do
+ActiveRecord::Schema.define(version: 2021_08_31_101318) do
 
   create_table "attendances", force: :cascade do |t|
     t.date "work_date", null: false
@@ -28,5 +28,14 @@ ActiveRecord::Schema.define(version: 2021_08_31_093831) do
     t.index ["attendance_id"], name: "index_clock_outs_on_attendance_id", unique: true
   end
 
+  create_table "rests", force: :cascade do |t|
+    t.integer "attendance_id", null: false
+    t.datetime "started_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["attendance_id"], name: "index_rests_on_attendance_id"
+  end
+
   add_foreign_key "clock_outs", "attendances"
+  add_foreign_key "rests", "attendances"
 end
