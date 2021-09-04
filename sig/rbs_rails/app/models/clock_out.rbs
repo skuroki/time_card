@@ -1,0 +1,103 @@
+class ClockOut < ApplicationRecord
+  extend _ActiveRecord_Relation_ClassMethods[ClockOut, ActiveRecord_Relation, Integer]
+
+  attr_accessor id(): Integer
+  def id_changed?: () -> bool
+  def id_change: () -> [ Integer?, Integer? ]
+  def id_will_change!: () -> void
+  def id_was: () -> Integer?
+  def id_previously_changed?: () -> bool
+  def id_previous_change: () -> Array[Integer?]?
+  def id_previously_was: () -> Integer?
+  def id_before_last_save: () -> Integer?
+  def id_change_to_be_saved: () -> Array[Integer?]?
+  def id_in_database: () -> Integer?
+  def saved_change_to_id: () -> Array[Integer?]?
+  def saved_change_to_id?: () -> bool
+  def will_save_change_to_id?: () -> bool
+  def restore_id!: () -> void
+  def clear_id_change: () -> void
+
+  attr_accessor attendance_id(): Integer
+  def attendance_id_changed?: () -> bool
+  def attendance_id_change: () -> [ Integer?, Integer? ]
+  def attendance_id_will_change!: () -> void
+  def attendance_id_was: () -> Integer?
+  def attendance_id_previously_changed?: () -> bool
+  def attendance_id_previous_change: () -> Array[Integer?]?
+  def attendance_id_previously_was: () -> Integer?
+  def attendance_id_before_last_save: () -> Integer?
+  def attendance_id_change_to_be_saved: () -> Array[Integer?]?
+  def attendance_id_in_database: () -> Integer?
+  def saved_change_to_attendance_id: () -> Array[Integer?]?
+  def saved_change_to_attendance_id?: () -> bool
+  def will_save_change_to_attendance_id?: () -> bool
+  def restore_attendance_id!: () -> void
+  def clear_attendance_id_change: () -> void
+
+  attr_accessor finished_at(): ActiveSupport::TimeWithZone
+  def finished_at_changed?: () -> bool
+  def finished_at_change: () -> [ ActiveSupport::TimeWithZone?, ActiveSupport::TimeWithZone? ]
+  def finished_at_will_change!: () -> void
+  def finished_at_was: () -> ActiveSupport::TimeWithZone?
+  def finished_at_previously_changed?: () -> bool
+  def finished_at_previous_change: () -> Array[ActiveSupport::TimeWithZone?]?
+  def finished_at_previously_was: () -> ActiveSupport::TimeWithZone?
+  def finished_at_before_last_save: () -> ActiveSupport::TimeWithZone?
+  def finished_at_change_to_be_saved: () -> Array[ActiveSupport::TimeWithZone?]?
+  def finished_at_in_database: () -> ActiveSupport::TimeWithZone?
+  def saved_change_to_finished_at: () -> Array[ActiveSupport::TimeWithZone?]?
+  def saved_change_to_finished_at?: () -> bool
+  def will_save_change_to_finished_at?: () -> bool
+  def restore_finished_at!: () -> void
+  def clear_finished_at_change: () -> void
+
+  attr_accessor created_at(): ActiveSupport::TimeWithZone
+  def created_at_changed?: () -> bool
+  def created_at_change: () -> [ ActiveSupport::TimeWithZone?, ActiveSupport::TimeWithZone? ]
+  def created_at_will_change!: () -> void
+  def created_at_was: () -> ActiveSupport::TimeWithZone?
+  def created_at_previously_changed?: () -> bool
+  def created_at_previous_change: () -> Array[ActiveSupport::TimeWithZone?]?
+  def created_at_previously_was: () -> ActiveSupport::TimeWithZone?
+  def created_at_before_last_save: () -> ActiveSupport::TimeWithZone?
+  def created_at_change_to_be_saved: () -> Array[ActiveSupport::TimeWithZone?]?
+  def created_at_in_database: () -> ActiveSupport::TimeWithZone?
+  def saved_change_to_created_at: () -> Array[ActiveSupport::TimeWithZone?]?
+  def saved_change_to_created_at?: () -> bool
+  def will_save_change_to_created_at?: () -> bool
+  def restore_created_at!: () -> void
+  def clear_created_at_change: () -> void
+
+  attr_accessor updated_at(): ActiveSupport::TimeWithZone
+  def updated_at_changed?: () -> bool
+  def updated_at_change: () -> [ ActiveSupport::TimeWithZone?, ActiveSupport::TimeWithZone? ]
+  def updated_at_will_change!: () -> void
+  def updated_at_was: () -> ActiveSupport::TimeWithZone?
+  def updated_at_previously_changed?: () -> bool
+  def updated_at_previous_change: () -> Array[ActiveSupport::TimeWithZone?]?
+  def updated_at_previously_was: () -> ActiveSupport::TimeWithZone?
+  def updated_at_before_last_save: () -> ActiveSupport::TimeWithZone?
+  def updated_at_change_to_be_saved: () -> Array[ActiveSupport::TimeWithZone?]?
+  def updated_at_in_database: () -> ActiveSupport::TimeWithZone?
+  def saved_change_to_updated_at: () -> Array[ActiveSupport::TimeWithZone?]?
+  def saved_change_to_updated_at?: () -> bool
+  def will_save_change_to_updated_at?: () -> bool
+  def restore_updated_at!: () -> void
+  def clear_updated_at_change: () -> void
+
+  def attendance: () -> Attendance
+  def attendance=: (Attendance?) -> Attendance?
+  def build_attendance: (untyped) -> Attendance
+  def create_attendance: (untyped) -> Attendance
+  def create_attendance!: (untyped) -> Attendance
+  def reload_attendance: () -> Attendance?
+
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include _ActiveRecord_Relation[ClockOut, Integer]
+    include Enumerable[ClockOut]
+  end
+
+  class ActiveRecord_Associations_CollectionProxy < ActiveRecord::Associations::CollectionProxy
+  end
+end
