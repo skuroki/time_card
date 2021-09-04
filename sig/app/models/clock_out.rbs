@@ -1,0 +1,2 @@
+class ClockOut < ApplicationRecord
+end
