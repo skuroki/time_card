@@ -10,11 +10,6 @@ class RestFinishesController < ApplicationController
   def show
   end
 
-  # GET /rest_finishes/new
-  def new
-    @rest_finish = RestFinish.new
-  end
-
   # GET /rest_finishes/1/edit
   def edit
   end
@@ -25,7 +20,7 @@ class RestFinishesController < ApplicationController
 
     respond_to do |format|
       if @rest_finish.save
-        format.html { redirect_to @rest_finish, notice: "Rest finish was successfully created." }
+        format.html { redirect_back fallback_location: root_path, notice: "Rest finish was successfully created." }
         format.json { render :show, status: :created, location: @rest_finish }
       else
         format.html { render :new, status: :unprocessable_entity }

@@ -10,11 +10,6 @@ class ClockOutsController < ApplicationController
   def show
   end
 
-  # GET /clock_outs/new
-  def new
-    @clock_out = ClockOut.new
-  end
-
   # GET /clock_outs/1/edit
   def edit
   end
@@ -25,7 +20,7 @@ class ClockOutsController < ApplicationController
 
     respond_to do |format|
       if @clock_out.save
-        format.html { redirect_to @clock_out, notice: "Clock out was successfully created." }
+        format.html { redirect_back fallback_location: root_path, notice: "Clock out was successfully created." }
         format.json { render :show, status: :created, location: @clock_out }
       else
         format.html { render :new, status: :unprocessable_entity }

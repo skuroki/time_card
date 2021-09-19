@@ -10,11 +10,6 @@ class RestsController < ApplicationController
   def show
   end
 
-  # GET /rests/new
-  def new
-    @rest = Rest.new
-  end
-
   # GET /rests/1/edit
   def edit
   end
@@ -25,7 +20,7 @@ class RestsController < ApplicationController
 
     respond_to do |format|
       if @rest.save
-        format.html { redirect_to @rest, notice: "Rest was successfully created." }
+        format.html { redirect_back fallback_location: root_path, notice: "Rest was successfully created." }
         format.json { render :show, status: :created, location: @rest }
       else
         format.html { render :new, status: :unprocessable_entity }

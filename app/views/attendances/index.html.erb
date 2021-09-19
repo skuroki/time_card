@@ -26,4 +26,14 @@
 
 <br>
 
-<%= link_to 'New Attendance', new_attendance_path %>
+<%= @state %>
+
+<% case @state %>
+<% when :not_at_work %>
+  <%= render 'attendances/form', attendance: @attendance %>
+<% when :at_work %>
+  <%= render 'rests/form', rest: @rest %>
+  <%= render 'clock_outs/form', clock_out: @clock_out %>
+<% when :on_a_break %>
+  <%= render 'rest_finishes/form', rest_finish: @rest_finish %>
+<% end %>

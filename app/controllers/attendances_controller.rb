@@ -4,15 +4,26 @@ class AttendancesController < ApplicationController
   # GET /attendances or /attendances.json
   def index
     @attendances = Attendance.all
+
+    last_attendance = @attendances.last
+    if last_attendance.nil? || last_attendance.clock_out
+      @state = :not_at_work
+      @attendance = Attendance.new
+    else
+      last_rest = last_attendance.rests.last
+      if last_rest.nil? || last_rest.rest_finish
+        @state = :at_work
+        @rest = last_attendance.rests.build
+        @clock_out = last_attendance.build_clock_out
+      else
+        @state = :on_a_break
+        @rest_finish = last_rest.build_rest_finish
+      end
+    end
   end
 
   # GET /attendances/1 or /attendances/1.json
   def show
-  end
-
-  # GET /attendances/new
-  def new
-    @attendance = Attendance.new
   end
 
   # GET /attendances/1/edit
@@ -25,7 +36,7 @@ class AttendancesController < ApplicationController
 
     respond_to do |format|
       if @attendance.save
-        format.html { redirect_to @attendance, notice: "Attendance was successfully created." }
+        format.html { redirect_back fallback_location: root_path, notice: "Attendance was successfully created." }
         format.json { render :show, status: :created, location: @attendance }
       else
         format.html { render :new, status: :unprocessable_entity }
