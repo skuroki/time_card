@@ -1,9 +1,0 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  attendance: one
-  finished_at: 2021-08-31 18:38:31
-
-two:
-  attendance: two
-  finished_at: 2021-08-31 18:38:31

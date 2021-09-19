@@ -154,6 +154,7 @@ GEM
       parser
       rbs (>= 1)
     regexp_parser (2.1.1)
+    rexml (3.2.5)
     rubyzip (2.3.2)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -231,6 +232,7 @@ DEPENDENCIES
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.1)
   rbs_rails
+  rexml
   sass-rails (>= 6)
   selenium-webdriver
   spring
