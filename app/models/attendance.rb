@@ -2,11 +2,11 @@ class Attendance < ApplicationRecord
   has_one :clock_out, dependent: :destroy
   has_many :rests, dependent: :destroy
 
-  def work_time
+  def length
     if clock_out
-      a = (clock_out.finished_at - self.started_at)
+      (clock_out.finished_at - self.started_at) - rests.map(&:length).sum
     else
-      nil
+      0.minutes
     end
   end
 end

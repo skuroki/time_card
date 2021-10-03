@@ -67,6 +67,10 @@ class AttendancesController < ApplicationController
     end
   end
 
+  def report
+    @attendances = Attendance.all
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_attendance

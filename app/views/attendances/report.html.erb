@@ -1,0 +1,24 @@
+<table>
+  <thead>
+    <tr>
+      <th>日付</th>
+      <th>開始</th>
+      <th>休憩</th>
+      <th>終了</th>
+      <th>勤務時間</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @attendances.each do |attendance| %>
+      <tr>
+        <td><%= attendance.work_date %></td>
+        <td><%= attendance.started_at.strftime('%H:%M') %></td>
+        <td><%= attendance.rests.map { |r| "#{r.started_at.strftime('%H:%M')} - #{r.rest_finish&.finished_at&.strftime('%H:%M')}" }.join('<br>').html_safe %></td>
+        <td><%= attendance.clock_out&.finished_at&.strftime('%H:%M') %></td>
+        <td><%= Time.at(attendance.length).utc.strftime('%H:%M') %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+

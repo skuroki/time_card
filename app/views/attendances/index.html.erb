@@ -9,6 +9,7 @@
       <th>Started at</th>
       <th>Rests</th>
       <th>Finished at</th>
+      <th>Length</th>
     </tr>
   </thead>
 
@@ -19,6 +20,7 @@
         <td><%= link_to attendance.started_at.strftime('%H:%M'), edit_attendance_path(attendance) %></td>
         <td><%= attendance.rests.map { |r| "#{r.started_at.strftime('%H:%M')} - #{r.rest_finish&.finished_at&.strftime('%H:%M')}" }.join('<br>').html_safe %></td>
         <td><%= attendance.clock_out&.finished_at&.strftime('%H:%M') %></td>
+        <td><%= Time.at(attendance.length).utc.strftime('%H:%M') %></td>
       </tr>
     <% end %>
   </tbody>
@@ -37,3 +39,5 @@
 <% when :on_a_break %>
   <%= render 'rest_finishes/form', rest_finish: @rest_finish %>
 <% end %>
+
+<%= link_to 'Report', report_attendances_path %>

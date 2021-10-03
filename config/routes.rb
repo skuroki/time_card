@@ -3,6 +3,10 @@ Rails.application.routes.draw do
   resources :rest_finishes, except: [:new]
   resources :rests, except: [:new]
   resources :clock_outs, except: [:new]
-  resources :attendances, except: [:new]
+  resources :attendances, except: [:new] do
+    collection do
+      get :report
+    end
+  end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
