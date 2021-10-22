@@ -12,13 +12,17 @@
   <tbody>
     <% @attendances.each do |attendance| %>
       <tr>
-        <td><%= attendance.work_date %></td>
+        <th><%= attendance.work_date %></th>
         <td><%= attendance.started_at.strftime('%H:%M') %></td>
         <td><%= attendance.rests.map { |r| "#{r.started_at.strftime('%H:%M')} - #{r.rest_finish&.finished_at&.strftime('%H:%M')}" }.join('<br>').html_safe %></td>
         <td><%= attendance.clock_out&.finished_at&.strftime('%H:%M') %></td>
         <td><%= Time.at(attendance.length).utc.strftime('%H:%M') %></td>
       </tr>
     <% end %>
+    <tr>
+      <th colspan=4>合計</th>
+      <td><%= @attendances.map(&:length).sum.then { |t| (t / 3600).to_i.to_s + ':' + (t.to_i % 3600 / 60).to_s } %></td>
+    </tr>
   </tbody>
 </table>
 
