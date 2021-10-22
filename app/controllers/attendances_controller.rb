@@ -3,7 +3,7 @@ class AttendancesController < ApplicationController
 
   # GET /attendances or /attendances.json
   def index
-    @attendances = Attendance.all
+    @attendances = Attendance.where('work_date > ?', 1.month.ago).order(:work_date)
 
     last_attendance = @attendances.last
     if last_attendance.nil? || last_attendance.clock_out
@@ -64,7 +64,9 @@ class AttendancesController < ApplicationController
   end
 
   def report
-    @attendances = Attendance.all
+    # 翌月の7日くらいまでには報告書を出すという見込み
+    target_month = 7.days.ago
+    @attendances = Attendance.where(work_date: target_month.beginning_of_month..target_month.end_of_month).order(:work_date)
   end
 
   private
