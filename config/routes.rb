@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :rest_finishes, except: [:new]
   resources :rests, except: [:new]
   resources :clock_outs, except: [:new]
-  resources :attendances, except: [:new] do
+  resources :attendances, except: [:show, :new] do
     collection do
       get :report
     end

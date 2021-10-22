@@ -1,5 +1,5 @@
 class AttendancesController < ApplicationController
-  before_action :set_attendance, only: %i[ show edit update destroy ]
+  before_action :set_attendance, only: %i[ edit update destroy ]
 
   # GET /attendances or /attendances.json
   def index
@@ -20,10 +20,6 @@ class AttendancesController < ApplicationController
         @rest_finish = last_rest.build_rest_finish
       end
     end
-  end
-
-  # GET /attendances/1 or /attendances/1.json
-  def show
   end
 
   # GET /attendances/1/edit
