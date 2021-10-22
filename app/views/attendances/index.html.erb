@@ -18,7 +18,13 @@
       <tr>
         <td><%= attendance.work_date %></td>
         <td><%= link_to attendance.started_at.strftime('%H:%M'), edit_attendance_path(attendance) %></td>
-        <td><%= attendance.rests.map { |r| "#{r.started_at.strftime('%H:%M')} - #{r.rest_finish&.finished_at&.strftime('%H:%M')}" }.join('<br>').html_safe %></td>
+        <td>
+        <% attendance.rests.each { |r| %>
+          <%= link_to r.started_at.strftime('%H:%M'), edit_rest_path(r) %>
+          -
+          <%= r.rest_finish&.finished_at&.strftime('%H:%M') %>
+          <br>
+        <% } %>
         <td><%= attendance.clock_out&.finished_at&.strftime('%H:%M') %></td>
         <td><%= Time.at(attendance.length).utc.strftime('%H:%M') %></td>
       </tr>

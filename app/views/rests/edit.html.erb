@@ -2,5 +2,5 @@
 
 <%= render 'form', rest: @rest %>
 
-<%= link_to 'Show', @rest %> |
-<%= link_to 'Back', rests_path %>
+<%= link_to 'Back', root_path %> |
+<%= link_to 'Destroy', @rest, method: :delete, data: { confirm: 'Are you sure?' } %>

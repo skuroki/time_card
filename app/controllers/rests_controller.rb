@@ -1,14 +1,5 @@
 class RestsController < ApplicationController
-  before_action :set_rest, only: %i[ show edit update destroy ]
-
-  # GET /rests or /rests.json
-  def index
-    @rests = Rest.all
-  end
-
-  # GET /rests/1 or /rests/1.json
-  def show
-  end
+  before_action :set_rest, only: %i[ edit update destroy ]
 
   # GET /rests/1/edit
   def edit
@@ -33,7 +24,7 @@ class RestsController < ApplicationController
   def update
     respond_to do |format|
       if @rest.update(rest_params)
-        format.html { redirect_to @rest, notice: "Rest was successfully updated." }
+        format.html { redirect_to root_path, notice: "Rest was successfully updated." }
         format.json { render :show, status: :ok, location: @rest }
       else
         format.html { render :edit, status: :unprocessable_entity }

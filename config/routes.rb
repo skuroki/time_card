@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root to: 'attendances#index'
   resources :rest_finishes, except: [:new]
-  resources :rests, except: [:new]
+  resources :rests, except: [:index, :show, :new]
   resources :clock_outs, except: [:new]
   resources :attendances, except: [:show, :new] do
     collection do
