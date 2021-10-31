@@ -22,10 +22,10 @@
         <% attendance.rests.each { |r| %>
           <%= link_to r.started_at.strftime('%H:%M'), edit_rest_path(r) %>
           -
-          <%= r.rest_finish&.finished_at&.strftime('%H:%M') %>
+          <%= (f = r.rest_finish) && link_to(f.finished_at.strftime('%H:%M'), edit_rest_finish_path(f)) %>
           <br>
         <% } %>
-        <td><%= attendance.clock_out&.finished_at&.strftime('%H:%M') %></td>
+        <td><%= (c = attendance.clock_out) && link_to(c.finished_at.strftime('%H:%M'), edit_clock_out_path(c)) %></td>
         <td><%= Time.at(attendance.length).utc.strftime('%H:%M') %></td>
       </tr>
     <% end %>
