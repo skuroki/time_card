@@ -12,4 +12,4 @@ RUN bundle install
 
 COPY . $APP_ROOT
 
-CMD ["bundle", "exec", "rails", "server", "-p", "$PORT", "-b", "0.0.0.0"]
+CMD bundle exec rails server -p $PORT -b 0.0.0.0
