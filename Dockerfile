@@ -13,4 +13,4 @@ RUN bundle install
 COPY . $APP_ROOT
 
 ENTRYPOINT ["bundle", "exec"]
-CMD ["rails", "server"]
+CMD ["rails", "server", "-p", "$PORT", "-b", "0.0.0.0"]
