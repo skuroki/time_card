@@ -3,7 +3,7 @@ class Attendance < ApplicationRecord
   has_many :rests, dependent: :destroy
 
   before_save do
-    self.started_at ||= Time.zone.local(
+    self.started_at &&= Time.zone.local(
       work_date.year,
       work_date.month,
       work_date.day,

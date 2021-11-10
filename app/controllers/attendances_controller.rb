@@ -45,7 +45,7 @@ class AttendancesController < ApplicationController
   def update
     respond_to do |format|
       if @attendance.update(attendance_params)
-        format.html { redirect_to @attendance, notice: "Attendance was successfully updated." }
+        format.html { redirect_to root_path, notice: "Attendance was successfully updated." }
         format.json { render :show, status: :ok, location: @attendance }
       else
         format.html { render :edit, status: :unprocessable_entity }
