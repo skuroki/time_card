@@ -37,7 +37,7 @@ class RestsController < ApplicationController
   def destroy
     @rest.destroy
     respond_to do |format|
-      format.html { redirect_to rests_url, notice: "Rest was successfully destroyed." }
+      format.html { redirect_to root_path, notice: "Rest was successfully destroyed." }
       format.json { head :no_content }
     end
   end
