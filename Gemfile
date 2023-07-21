@@ -68,3 +68,9 @@ gem 'rbs_rails', require: false
 gem 'rexml'
 
 gem "dockerfile-rails", ">= 1.5", :group => :development
+
+gem "net-smtp", "~> 0.3.3", :require => false
+
+gem "net-imap", "~> 0.3.6", :require => false
+
+gem "net-pop", "~> 0.1.2", :require => false
