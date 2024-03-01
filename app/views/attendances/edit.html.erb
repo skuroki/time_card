@@ -2,5 +2,9 @@
 
 <%= render 'form', attendance: @attendance %>
 
+<%= @attendance.state %>
+
+<%= render_forms_for_attendance(@attendance) %>
+
 <%= link_to 'Back', attendances_path %> |
 <%= link_to 'Destroy', @attendance, method: :delete, data: { confirm: 'Are you sure?' } %>

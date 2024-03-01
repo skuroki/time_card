@@ -5,21 +5,8 @@ class AttendancesController < ApplicationController
   def index
     @attendances = Attendance.where('work_date > ?', 1.month.ago).order(:work_date)
 
-    last_attendance = @attendances.last
-    if last_attendance.nil? || last_attendance.clock_out
-      @state = :not_at_work
-      @attendance = Attendance.new
-    else
-      last_rest = last_attendance.rests.last
-      if last_rest.nil? || last_rest.rest_finish
-        @state = :at_work
-        @rest = last_attendance.rests.build
-        @clock_out = last_attendance.build_clock_out
-      else
-        @state = :on_a_break
-        @rest_finish = last_rest.build_rest_finish
-      end
-    end
+    @last_attendance = @attendances.last
+
   end
 
   # GET /attendances/1/edit

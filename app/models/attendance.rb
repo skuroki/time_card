@@ -20,4 +20,17 @@ class Attendance < ApplicationRecord
       0.minutes
     end
   end
+
+  def state
+    if clock_out
+      :not_at_work
+    else
+      last_rest = rests.last
+      if last_rest.nil? || last_rest.rest_finish
+        :at_work
+      else
+        :on_a_break
+      end
+    end
+  end
 end
