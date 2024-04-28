@@ -38,6 +38,7 @@ group :development, :test do
   gem 'solargraph', require: false
   gem 'rspec-rails'
   gem 'matrix'
+  gem 'rubocop-rails'
 end
 
 group :development do
