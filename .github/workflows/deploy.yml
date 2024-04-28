@@ -29,6 +29,9 @@ jobs:
 
     environment: production
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Install Fly.io CLI
       run: |
         curl -L https://fly.io/install.sh | sh
