@@ -6,10 +6,8 @@ on:
       - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: production
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -25,6 +23,12 @@ jobs:
     - name: Run RSpec
       run: bundle exec rspec
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment: production
+    steps:
     - name: Install Fly.io CLI
       run: |
         curl -L https://fly.io/install.sh | sh
