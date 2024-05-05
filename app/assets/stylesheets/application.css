@@ -14,14 +14,18 @@
  *= require_self
  */
 
-th,td {
+th,
+td {
   border: solid 1px;
 }
 
 th {
-  background-color: #CCC;
+  background-color: #ccc;
 }
 
 table {
-  border-collapse:  collapse;
+  border-collapse: collapse;
+}
+.working-time {
+  color: lightgreen;
 }

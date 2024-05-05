@@ -33,4 +33,18 @@ class Attendance < ApplicationRecord
       end
     end
   end
+
+  def worked_time_until(end_time)
+    raise '勤務が既に終了しています' if clock_out
+
+    total_worked_time = end_time - started_at
+
+    rests.each do |rest|
+      rest_end = rest.rest_finish&.finished_at || end_time
+      rest_duration = [rest_end, end_time].min - rest.started_at
+      total_worked_time -= rest_duration
+    end
+
+    total_worked_time
+  end
 end
