@@ -10,37 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_31_105216) do
-
+ActiveRecord::Schema[7.0].define(version: 2024_07_15_072109) do
   create_table "attendances", force: :cascade do |t|
     t.date "work_date", null: false
-    t.datetime "started_at", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "started_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["work_date"], name: "index_attendances_on_work_date", unique: true
   end
 
   create_table "clock_outs", force: :cascade do |t|
     t.integer "attendance_id", null: false
-    t.datetime "finished_at", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "finished_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["attendance_id"], name: "index_clock_outs_on_attendance_id", unique: true
   end
 
   create_table "rest_finishes", force: :cascade do |t|
     t.integer "rest_id", null: false
-    t.datetime "finished_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "finished_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["rest_id"], name: "index_rest_finishes_on_rest_id", unique: true
   end
 
   create_table "rests", force: :cascade do |t|
     t.integer "attendance_id", null: false
-    t.datetime "started_at", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "started_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["attendance_id"], name: "index_rests_on_attendance_id"
   end
 
