@@ -9,10 +9,10 @@ module ApplicationHelper
     when :at_work
       rest = attendance.rests.build
       clock_out = attendance.build_clock_out
-      render('rests/form', rest: rest) + render('clock_outs/form', clock_out: clock_out)
+      render('rests/form', rest:) + render('clock_outs/form', clock_out:)
     when :on_a_break
       rest_finish = attendance.rests.last.build_rest_finish
-      render 'rest_finishes/form', rest_finish: rest_finish
+      render 'rest_finishes/form', rest_finish:
     end
   end
 end

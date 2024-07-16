@@ -13,11 +13,7 @@ class RestFinishesController < ApplicationController
 
     respond_to do |format|
       if @rest_finish.save
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: Attendance.last }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :created, location: @rest_finish }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -30,11 +26,7 @@ class RestFinishesController < ApplicationController
   def update
     respond_to do |format|
       if @rest_finish.update(rest_finish_params)
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: Attendance.last }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :ok, location: @rest_finish }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -47,11 +39,7 @@ class RestFinishesController < ApplicationController
   def destroy
     @rest_finish.destroy
     respond_to do |format|
-      format.html do
-        render partial: 'attendances/attendances',
-               locals: { attendances: Attendance.recent,
-                         last_attendance: Attendance.last }
-      end
+      format.html { render_attendances_partial }
       format.json { head :no_content }
     end
   end

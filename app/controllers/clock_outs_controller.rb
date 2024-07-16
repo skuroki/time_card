@@ -13,11 +13,7 @@ class ClockOutsController < ApplicationController
 
     respond_to do |format|
       if @clock_out.save
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: Attendance.last }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :created, location: @clock_out }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -30,11 +26,7 @@ class ClockOutsController < ApplicationController
   def update
     respond_to do |format|
       if @clock_out.update(clock_out_params)
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: Attendance.last }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :ok, location: @clock_out }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -47,11 +39,7 @@ class ClockOutsController < ApplicationController
   def destroy
     @clock_out.destroy
     respond_to do |format|
-      format.html do
-        render partial: 'attendances/attendances',
-               locals: { attendances: Attendance.recent,
-                         last_attendance: Attendance.last }
-      end
+      format.html { render_attendances_partial }
       format.json { head :no_content }
     end
   end

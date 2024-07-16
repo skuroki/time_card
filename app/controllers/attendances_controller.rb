@@ -19,11 +19,7 @@ class AttendancesController < ApplicationController
 
     respond_to do |format|
       if @attendance.save
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: @attendance }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :created, location: @attendance }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -36,11 +32,7 @@ class AttendancesController < ApplicationController
   def update
     respond_to do |format|
       if @attendance.update(attendance_params)
-        format.html do
-          render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.recent,
-                           last_attendance: Attendance.last }
-        end
+        format.html { render_attendances_partial }
         format.json { render :show, status: :ok, location: @attendance }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -53,11 +45,7 @@ class AttendancesController < ApplicationController
   def destroy
     @attendance.destroy
     respond_to do |format|
-      format.html do
-        render partial: 'attendances/attendances',
-               locals: { attendances: Attendance.recent,
-                         last_attendance: Attendance.last }
-      end
+      format.html { render_attendances_partial }
       format.json { head :no_content }
     end
   end
