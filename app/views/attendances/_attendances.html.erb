@@ -1,4 +1,4 @@
-<%= turbo_frame_tag 'attendances' do %>
+<%= turbo_frame_tag 'attendances', data: { controller: 'working-time' } do %>
   <table>
     <thead>
       <tr>
@@ -27,13 +27,17 @@
             <% if c %>
               <%= Time.at(attendance.length).utc.strftime('%H:%M') %>
             <% else %>
-              <span class="working-time"><%= Time.at(attendance.worked_time_until(Time.now)).utc.strftime('%H:%M') %></span>
+              <%= turbo_frame_tag "working_time" do %>
+                <span class="working-time"><%= Time.at(attendance.worked_time_until(Time.now)).utc.strftime('%H:%M') %></span>
+              <% end %>
             <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+
+  <%= link_to '更新', working_time_attendance_path(attendances.last), data: { turbo_frame: 'working_time' }, id: 'update-working-time-link' %>
 
   <br>
 

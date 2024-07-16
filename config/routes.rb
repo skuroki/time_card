@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   resources :rests, except: %i[index show new]
   resources :clock_outs, except: %i[index show new]
   resources :attendances, except: %i[show new] do
+    member do
+      get :working_time
+    end
     collection do
       get :report
     end

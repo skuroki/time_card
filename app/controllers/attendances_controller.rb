@@ -56,6 +56,11 @@ class AttendancesController < ApplicationController
     @attendances = Attendance.where(work_date: target_month.beginning_of_month..target_month.end_of_month).order(:work_date)
   end
 
+  def working_time
+    @attendance = Attendance.find(params[:id])
+    render partial: 'attendances/working_time', locals: { attendance: @attendance }
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.

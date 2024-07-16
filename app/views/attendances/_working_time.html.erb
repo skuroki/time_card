@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "working_time" do %>
+  <span class="working-time"><%= Time.at(attendance.worked_time_until(Time.now)).utc.strftime('%H:%M') %></span>
+<% end %>
