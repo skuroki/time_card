@@ -1,17 +1,10 @@
 class ClockOutsController < ApplicationController
-  before_action :set_clock_out, only: %i[ show edit update destroy ]
-
-  # GET /clock_outs or /clock_outs.json
-  def index
-    @clock_outs = ClockOut.all
-  end
-
-  # GET /clock_outs/1 or /clock_outs/1.json
-  def show
-  end
+  before_action :set_clock_out, only: %i[edit update destroy]
 
   # GET /clock_outs/1/edit
   def edit
+    render partial: 'clock_outs/edit',
+           locals: { clock_out: @clock_out }
   end
 
   # POST /clock_outs or /clock_outs.json
@@ -20,7 +13,11 @@ class ClockOutsController < ApplicationController
 
     respond_to do |format|
       if @clock_out.save
-        format.html { redirect_back fallback_location: root_path, notice: "Clock out was successfully created." }
+        format.html do
+          render partial: 'attendances/attendances',
+                 locals: { attendances: Attendance.recent,
+                           last_attendance: Attendance.last }
+        end
         format.json { render :show, status: :created, location: @clock_out }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -33,7 +30,11 @@ class ClockOutsController < ApplicationController
   def update
     respond_to do |format|
       if @clock_out.update(clock_out_params)
-        format.html { redirect_to @clock_out, notice: "Clock out was successfully updated." }
+        format.html do
+          render partial: 'attendances/attendances',
+                 locals: { attendances: Attendance.recent,
+                           last_attendance: Attendance.last }
+        end
         format.json { render :show, status: :ok, location: @clock_out }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -46,19 +47,24 @@ class ClockOutsController < ApplicationController
   def destroy
     @clock_out.destroy
     respond_to do |format|
-      format.html { redirect_to clock_outs_url, notice: "Clock out was successfully destroyed." }
+      format.html do
+        render partial: 'attendances/attendances',
+               locals: { attendances: Attendance.recent,
+                         last_attendance: Attendance.last }
+      end
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_clock_out
-      @clock_out = ClockOut.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def clock_out_params
-      params.require(:clock_out).permit(:attendance_id, :finished_at)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_clock_out
+    @clock_out = ClockOut.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def clock_out_params
+    params.require(:clock_out).permit(:attendance_id, :finished_at)
+  end
 end

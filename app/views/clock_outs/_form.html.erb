@@ -1,4 +1,4 @@
-<%= form_with(model: clock_out) do |form| %>
+<%= form_with(model: clock_out, data: { turbo_frame: 'attendances' }) do |form| %>
   <% if clock_out.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(clock_out.errors.count, "error") %> prohibited this clock_out from being saved:</h2>

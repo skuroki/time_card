@@ -1,4 +1,6 @@
 class Attendance < ApplicationRecord
+  scope :recent, -> { where('work_date > ?', 1.month.ago).order(:work_date) }
+
   has_one :clock_out, dependent: :destroy
   has_many :rests, dependent: :destroy
 

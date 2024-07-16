@@ -1,0 +1,7 @@
+<%= turbo_frame_tag 'form' do %>
+	<p>退勤情報の編集</p>
+
+	<%= render 'form', clock_out: %>
+
+	<%= link_to 'Destroy', clock_out, data: { turbo_confirm: 'Are you sure?', turbo_frame: 'attendances', turbo_method: :delete } %>
+<% end %>

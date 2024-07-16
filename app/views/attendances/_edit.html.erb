@@ -1,0 +1,11 @@
+<%= turbo_frame_tag 'form' do %>
+  <p>出勤情報の編集</p>
+
+  <%= render 'form', attendance: %>
+
+	<%= attendance.state %>
+
+	<%= render_forms_for_attendance(attendance) %>
+
+	<%= link_to 'Destroy', attendance, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?', turbo_frame: 'attendances' } %>
+<% end %>

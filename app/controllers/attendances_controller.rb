@@ -3,13 +3,14 @@ class AttendancesController < ApplicationController
 
   # GET /attendances or /attendances.json
   def index
-    @attendances = Attendance.where('work_date > ?', 1.month.ago).order(:work_date)
-
+    @attendances = Attendance.recent
     @last_attendance = @attendances.last
   end
 
   # GET /attendances/1/edit
   def edit
+    render partial: 'attendances/edit',
+           locals: { attendance: @attendance }
   end
 
   # POST /attendances or /attendances.json
@@ -20,8 +21,7 @@ class AttendancesController < ApplicationController
       if @attendance.save
         format.html do
           render partial: 'attendances/attendances',
-                 locals: { attendances: Attendance.where('work_date > ?',
-                                                         1.month.ago).order(:work_date),
+                 locals: { attendances: Attendance.recent,
                            last_attendance: @attendance }
         end
         format.json { render :show, status: :created, location: @attendance }
@@ -36,7 +36,11 @@ class AttendancesController < ApplicationController
   def update
     respond_to do |format|
       if @attendance.update(attendance_params)
-        format.html { redirect_to root_path, notice: 'Attendance was successfully updated.' }
+        format.html do
+          render partial: 'attendances/attendances',
+                 locals: { attendances: Attendance.recent,
+                           last_attendance: Attendance.last }
+        end
         format.json { render :show, status: :ok, location: @attendance }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -49,7 +53,11 @@ class AttendancesController < ApplicationController
   def destroy
     @attendance.destroy
     respond_to do |format|
-      format.html { redirect_to attendances_url, notice: 'Attendance was successfully destroyed.' }
+      format.html do
+        render partial: 'attendances/attendances',
+               locals: { attendances: Attendance.recent,
+                         last_attendance: Attendance.last }
+      end
       format.json { head :no_content }
     end
   end

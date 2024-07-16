@@ -1,17 +1,10 @@
 class RestFinishesController < ApplicationController
-  before_action :set_rest_finish, only: %i[ show edit update destroy ]
-
-  # GET /rest_finishes or /rest_finishes.json
-  def index
-    @rest_finishes = RestFinish.all
-  end
-
-  # GET /rest_finishes/1 or /rest_finishes/1.json
-  def show
-  end
+  before_action :set_rest_finish, only: %i[edit update destroy]
 
   # GET /rest_finishes/1/edit
   def edit
+    render partial: 'rest_finishes/edit',
+           locals: { rest_finish: @rest_finish }
   end
 
   # POST /rest_finishes or /rest_finishes.json
@@ -20,7 +13,11 @@ class RestFinishesController < ApplicationController
 
     respond_to do |format|
       if @rest_finish.save
-        format.html { redirect_back fallback_location: root_path, notice: "Rest finish was successfully created." }
+        format.html do
+          render partial: 'attendances/attendances',
+                 locals: { attendances: Attendance.recent,
+                           last_attendance: Attendance.last }
+        end
         format.json { render :show, status: :created, location: @rest_finish }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -33,7 +30,11 @@ class RestFinishesController < ApplicationController
   def update
     respond_to do |format|
       if @rest_finish.update(rest_finish_params)
-        format.html { redirect_to @rest_finish, notice: "Rest finish was successfully updated." }
+        format.html do
+          render partial: 'attendances/attendances',
+                 locals: { attendances: Attendance.recent,
+                           last_attendance: Attendance.last }
+        end
         format.json { render :show, status: :ok, location: @rest_finish }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -46,19 +47,24 @@ class RestFinishesController < ApplicationController
   def destroy
     @rest_finish.destroy
     respond_to do |format|
-      format.html { redirect_to rest_finishes_url, notice: "Rest finish was successfully destroyed." }
+      format.html do
+        render partial: 'attendances/attendances',
+               locals: { attendances: Attendance.recent,
+                         last_attendance: Attendance.last }
+      end
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_rest_finish
-      @rest_finish = RestFinish.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def rest_finish_params
-      params.require(:rest_finish).permit(:rest_id, :finished_at)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_rest_finish
+    @rest_finish = RestFinish.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def rest_finish_params
+    params.require(:rest_finish).permit(:rest_id, :finished_at)
+  end
 end

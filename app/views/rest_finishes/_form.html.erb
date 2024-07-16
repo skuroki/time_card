@@ -1,4 +1,4 @@
-<%= form_with(model: rest_finish) do |form| %>
+<%= form_with(model: rest_finish, data: { turbo_frame: 'attendances' }) do |form| %>
   <% if rest_finish.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(rest_finish.errors.count, "error") %> prohibited this rest_finish from being saved:</h2>

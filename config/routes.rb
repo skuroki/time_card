@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   root to: 'attendances#index'
-  resources :rest_finishes, except: [:new]
-  resources :rests, except: [:index, :show, :new]
-  resources :clock_outs, except: [:new]
-  resources :attendances, except: [:show, :new] do
+  resources :rest_finishes, except: %i[index show new]
+  resources :rests, except: %i[index show new]
+  resources :clock_outs, except: %i[index show new]
+  resources :attendances, except: %i[show new] do
     collection do
       get :report
     end

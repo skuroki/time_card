@@ -14,15 +14,15 @@
       <% attendances.each do |attendance| %>
         <tr>
           <td><%= attendance.work_date %></td>
-          <td><%= link_to attendance.started_at.strftime('%H:%M'), edit_attendance_path(attendance) %></td>
+          <td><%= link_to attendance.started_at.strftime('%H:%M'), edit_attendance_path(attendance), data: { turbo_frame: 'form' } %></td>
           <td>
           <% attendance.rests.each { |r| %>
-            <%= link_to r.started_at.strftime('%H:%M'), edit_rest_path(r) %>
+            <%= link_to r.started_at.strftime('%H:%M'), edit_rest_path(r), data: { turbo_frame: 'form' } %>
             -
-            <%= (f = r.rest_finish) && link_to(f.finished_at.strftime('%H:%M'), edit_rest_finish_path(f)) %>
+            <%= (f = r.rest_finish) && link_to(f.finished_at.strftime('%H:%M'), edit_rest_finish_path(f), data: { turbo_frame: 'form' }) %>
             <br>
           <% } %>
-          <td><%= (c = attendance.clock_out) && link_to(c.finished_at.strftime('%H:%M'), edit_clock_out_path(c)) %></td>
+          <td><%= (c = attendance.clock_out) && link_to(c.finished_at.strftime('%H:%M'), edit_clock_out_path(c), data: { turbo_frame: 'form' }) %></td>
           <td>
             <% if c %>
               <%= Time.at(attendance.length).utc.strftime('%H:%M') %>
@@ -37,7 +37,7 @@
 
   <br>
 
-  <%= last_attendance&.state %>
-
-  <%= render_forms_for_attendance(last_attendance) %>
+  <%= turbo_frame_tag 'form' do %>
+    <%= render_forms_for_attendance(last_attendance) %>
+  <% end %>
 <% end %>
