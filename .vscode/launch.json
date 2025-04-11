@@ -1,0 +1,13 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug RSpec Tests",
+			"type": "Ruby",
+			"request": "launch",
+			"program": "${workspaceFolder}/bin/rspec",
+			"args": ["--format", "documentation"],
+			"useBundler": true
+		}
+	]
+}

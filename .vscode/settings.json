@@ -1,0 +1,6 @@
+{
+    "ruby.testCommand": "rspec",
+    "ruby.testFramework": "rspec",
+    "ruby.rspec.commandPath": "bundle",
+    "ruby.rspec.commandArguments": ["exec", "rspec"]
+}
