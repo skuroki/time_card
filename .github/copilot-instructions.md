@@ -1,0 +1,1 @@
+- テストデータを作るためにfactory_bot gemは導入しない。必要なデータはActiveRecordの標準機能で作成する。
