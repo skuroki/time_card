@@ -20,7 +20,7 @@ jobs:
         TIME_CARD_PASSWORD: ${{ secrets.TIME_CARD_PASSWORD }}
         SELENIUM_IMAGE: selenium/standalone-chrome:latest
       run: |
-        docker-compose -f docker-compose.test.yml run --rm test
+        docker compose -f docker-compose.test.yml run --rm test
 
     - name: Upload test artifacts
       if: failure()
