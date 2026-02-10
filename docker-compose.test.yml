@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: attendance_test
+      POSTGRES_USER: postgres
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test_network
+
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 2gb
+    ports:
+      - "4444:4444"
+      - "7900:7900"  # VNC port for debugging
+    environment:
+      - SE_NODE_MAX_SESSIONS=5
+      - SE_NODE_SESSION_TIMEOUT=300
+    networks:
+      - test_network
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      db:
+        condition: service_healthy
+      selenium:
+        condition: service_started
+    environment:
+      RAILS_ENV: test
+      DATABASE_URL: postgresql://postgres:test_password@db:5432/attendance_test
+      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+      TIME_CARD_PASSWORD: ${TIME_CARD_PASSWORD:-test_password}
+      COVERAGE: ${COVERAGE:-false}
+    volumes:
+      - bundle_cache:/usr/local/bundle
+      - .:/rails
+      - test_results:/rails/tmp/test_results
+    working_dir: /rails
+    networks:
+      - test_network
+    command: bundle exec rspec
+
+volumes:
+  postgres_test_data:
+  test_results:
+  bundle_cache:
+
+networks:
+  test_network:
+    driver: bridge

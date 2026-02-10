@@ -37,7 +37,9 @@
     </tbody>
   </table>
 
-  <%= link_to '更新', working_time_attendance_path(attendances.last), data: { turbo_frame: 'working_time' }, id: 'update-working-time-link' %>
+  <% if attendances.last %>
+    <%= link_to '更新', working_time_attendance_path(attendances.last), data: { turbo_frame: 'working_time' }, id: 'update-working-time-link' %>
+  <% end %>
 
   <br>
 

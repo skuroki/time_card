@@ -12,18 +12,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.3.1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-    - name: Bundle install
-      run: bundle install
-
-    - name: Run RSpec
-      run: bundle exec rspec
+    - name: Run E2E tests in containers
       env:
-        TIME_CARD_PASSWORD: password
+        TIME_CARD_PASSWORD: ${{ secrets.TIME_CARD_PASSWORD }}
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm test
+
+    - name: Upload test artifacts
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: tmp/test_results/
+        retention-days: 7
 
   deploy:
     needs: build

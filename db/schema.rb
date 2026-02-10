@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_15_072109) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_15_072109) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "attendances", force: :cascade do |t|
     t.date "work_date", null: false
     t.datetime "started_at", precision: nil, null: false
@@ -20,7 +23,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_15_072109) do
   end
 
   create_table "clock_outs", force: :cascade do |t|
-    t.integer "attendance_id", null: false
+    t.bigint "attendance_id", null: false
     t.datetime "finished_at", precision: nil, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -28,7 +31,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_15_072109) do
   end
 
   create_table "rest_finishes", force: :cascade do |t|
-    t.integer "rest_id", null: false
+    t.bigint "rest_id", null: false
     t.datetime "finished_at", precision: nil
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -36,7 +39,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_15_072109) do
   end
 
   create_table "rests", force: :cascade do |t|
-    t.integer "attendance_id", null: false
+    t.bigint "attendance_id", null: false
     t.datetime "started_at", precision: nil, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

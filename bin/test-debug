@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Run tests in debug mode with interactive shell access
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}Starting test debug mode in containers...${NC}"
+
+# Check if docker-compose is available
+if ! command -v docker-compose &> /dev/null; then
+    echo -e "${RED}Error: docker-compose is not installed${NC}"
+    echo "Please install docker-compose to run tests in containers"
+    exit 1
+fi
+
+# Check if .env.test exists
+if [ ! -f .env.test ]; then
+    echo -e "${YELLOW}Warning: .env.test file not found${NC}"
+    echo "Creating .env.test from .env.development..."
+    cp .env.development .env.test
+fi
+
+# Parse command line arguments
+TEST_FILE=""
+INTERACTIVE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --shell|-s)
+            INTERACTIVE=true
+            shift
+            ;;
+        *)
+            TEST_FILE="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ "$INTERACTIVE" = true ]; then
+    echo -e "${BLUE}Starting interactive shell in test container...${NC}"
+    echo -e "${YELLOW}You can run tests manually with: bundle exec rspec${NC}"
+    echo -e "${YELLOW}Exit the shell with: exit${NC}"
+    
+    docker-compose -f docker-compose.test.yml run --rm test /bin/bash
+else
+    if [ -z "$TEST_FILE" ]; then
+        echo -e "${YELLOW}No test file specified. Running all tests in debug mode...${NC}"
+        TEST_FILE=""
+    else
+        echo -e "${GREEN}Running test file: $TEST_FILE${NC}"
+    fi
+    
+    echo -e "${BLUE}Debug mode enabled:${NC}"
+    echo -e "  - Add ${YELLOW}binding.pry${NC} in your test code to set breakpoints"
+    echo -e "  - The debugger will pause execution and allow inspection"
+    echo -e "  - Type ${YELLOW}continue${NC} to resume, ${YELLOW}exit${NC} to quit"
+    echo ""
+    
+    # Run with stdin attached for pry interaction
+    docker-compose -f docker-compose.test.yml run --rm test bundle exec rspec $TEST_FILE
+fi
+
+# Cleanup
+echo -e "${GREEN}Cleaning up containers...${NC}"
+docker-compose -f docker-compose.test.yml down

@@ -2,5 +2,9 @@
     "ruby.testCommand": "rspec",
     "ruby.testFramework": "rspec",
     "ruby.rspec.commandPath": "bundle",
-    "ruby.rspec.commandArguments": ["exec", "rspec"]
+    "ruby.rspec.commandArguments": [
+        "exec",
+        "rspec"
+    ],
+    "kiroAgent.configureMCP": "Disabled"
 }
