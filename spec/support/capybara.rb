@@ -1,30 +1,32 @@
 require 'capybara/rspec'
-require 'selenium-webdriver'
+require 'capybara/playwright'
 
-# Register selenium_remote_chrome driver for containerized testing
-Capybara.register_driver :selenium_remote_chrome do |app|
-  options = Selenium::WebDriver::Chrome::Options.new
-  
-  # Configure Chrome options for headless mode
-  options.add_argument('--headless')
-  options.add_argument('--no-sandbox')
-  options.add_argument('--disable-dev-shm-usage')
-  options.add_argument('--disable-gpu')
-  options.add_argument('--window-size=1920,1080')
-
-  Capybara::Selenium::Driver.new(
-    app,
-    browser: :remote,
-    url: ENV['SELENIUM_REMOTE_URL'] || 'http://selenium:4444/wd/hub',
-    options: options
+# Register Playwright driver for Capybara
+Capybara.register_driver :playwright do |app|
+  Capybara::Playwright::Driver.new(app,
+    browser_type: :chromium,
+    headless: true,
+    playwright_cli_executable_path: 'playwright',
+    browser_options: {
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ]
+    },
+    screen: {
+      width: 1920,
+      height: 1080
+    }
   )
 end
 
+# Configure Capybara to use Playwright driver
+Capybara.default_driver = :playwright
+Capybara.javascript_driver = :playwright
+
 # Configure Capybara for container networking
 Capybara.configure do |config|
-  config.default_driver = :rack_test
-  config.javascript_driver = :selenium_remote_chrome
-  
   # Configure default wait times and retry behavior
   config.default_max_wait_time = 10
   
@@ -33,15 +35,15 @@ Capybara.configure do |config|
   config.server_host = '0.0.0.0'
   config.server_port = 3000
   
-  # Set app_host for remote Selenium to connect back to the Rails app
+  # Set app_host for Playwright to connect to the Rails app
   # In container environment, use the container hostname
   config.app_host = "http://#{Socket.gethostname}:3000"
 end
 
-# Configure RSpec to use the remote driver for system tests
+# Configure RSpec to use Playwright driver for system tests
 RSpec.configure do |config|
   config.before(:each, type: :system) do
-    driven_by :selenium_remote_chrome
+    driven_by :playwright
   end
   
   # Save screenshots on test failure

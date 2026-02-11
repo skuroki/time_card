@@ -26,25 +26,6 @@ done
 
 echo "Database is up - setting up test database"
 
-# Function to check Selenium readiness
-check_selenium() {
-  curl -s http://selenium:4444/wd/hub/status >/dev/null
-}
-
-# Wait for Selenium
-echo "Waiting for Selenium to be ready..."
-RETRY_COUNT=0
-until check_selenium; do
-  RETRY_COUNT=$((RETRY_COUNT + 1))
-  if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-    echo "Error: Selenium is not available after $MAX_RETRIES attempts"
-    exit 1
-  fi
-  echo "Selenium is unavailable - attempt $RETRY_COUNT/$MAX_RETRIES - sleeping"
-  sleep 1
-done
-echo "Selenium is up!"
-
 # Install gems if needed
 bundle check || bundle install
 

@@ -8,7 +8,7 @@ This document specifies the requirements for implementing end-to-end (E2E) testi
 
 - **E2E_Test**: End-to-end test that validates complete user workflows through the browser
 - **Test_Container**: Docker container configured to run automated tests
-- **Selenium_Grid**: Distributed test execution environment using Selenium
+- **Playwright**: Modern browser automation framework supporting multiple browsers
 - **Headless_Browser**: Browser that runs without a graphical user interface
 - **Docker_Compose**: Tool for defining and running multi-container Docker applications
 - **Test_Database**: Isolated database instance used exclusively for test execution
@@ -34,9 +34,9 @@ This document specifies the requirements for implementing end-to-end (E2E) testi
 
 #### Acceptance Criteria
 
-1. WHEN E2E tests execute, THE System SHALL use a Headless_Browser running in a separate container
-2. WHEN Capybara tests run, THE System SHALL connect to the containerized Selenium service
-3. WHEN browser tests execute, THE Selenium_Grid SHALL capture screenshots on test failures
+1. WHEN E2E tests execute, THE System SHALL use a Headless_Browser with Capybara and Playwright driver
+2. WHEN browser tests run, THE System SHALL support Chromium browser via Playwright driver
+3. WHEN browser tests execute, THE Playwright driver SHALL capture screenshots on test failures
 4. WHEN multiple tests run concurrently, THE System SHALL handle parallel browser sessions without conflicts
 5. IF a browser test fails, THEN THE System SHALL preserve logs and screenshots for debugging
 
@@ -47,7 +47,7 @@ This document specifies the requirements for implementing end-to-end (E2E) testi
 #### Acceptance Criteria
 
 1. THE System SHALL provide a docker-compose configuration for the test environment
-2. WHEN docker-compose is executed, THE System SHALL start all required services (app, database, selenium)
+2. WHEN docker-compose is executed, THE System SHALL start all required services (app, database)
 3. WHEN services start, THE System SHALL wait for dependencies to be ready before running tests
 4. WHEN the test command is issued, THE System SHALL execute the full test suite and report results
 5. WHERE environment variables are needed, THE System SHALL load them from appropriate configuration files
@@ -82,7 +82,7 @@ This document specifies the requirements for implementing end-to-end (E2E) testi
 
 #### Acceptance Criteria
 
-1. THE System SHALL support RSpec system tests using Capybara
+1. THE System SHALL support RSpec system tests using Capybara with Playwright driver
 2. WHEN writing system tests, THE System SHALL provide helpers for common UI interactions
 3. WHEN testing attendance workflows, THE System SHALL validate clock-in, rest, and clock-out operations
 4. WHEN testing the report page, THE System SHALL verify correct data display and filtering
