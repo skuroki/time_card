@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - playwright
 
 jobs:
   build:

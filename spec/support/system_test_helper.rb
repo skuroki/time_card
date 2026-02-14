@@ -2,28 +2,20 @@
 # Provides authentication and wait helpers for Capybara system tests
 module SystemTestHelper
   # Sign in using HTTP Basic Authentication
-  # Uses the same credentials as the application controller
-  # 
-  # For Selenium WebDriver, HTTP Basic Auth is handled by including
-  # credentials in the URL when visiting pages
+  # For Playwright driver, include credentials in the URL
   def sign_in_with_basic_auth
     @basic_auth_username = 'skuroki'
     @basic_auth_password = ENV['TIME_CARD_PASSWORD'] || 'test_password'
   end
   
   # Override visit to include basic auth credentials in the URL
-  # This is the standard way to handle HTTP Basic Auth with Selenium
   def visit(path)
     if @basic_auth_username && @basic_auth_password
       # For relative paths, construct full URL with credentials
       if path.start_with?('/')
-        # Use Capybara's app_host which is configured for container networking
-        app_host = Capybara.app_host || "http://#{Capybara.current_session.server.host}:#{Capybara.current_session.server.port}"
-        uri = URI.parse(app_host)
-        uri.user = @basic_auth_username
-        uri.password = @basic_auth_password
-        uri.path = path
-        authenticated_url = uri.to_s
+        host = Capybara.current_session.server.host
+        port = Capybara.current_session.server.port
+        authenticated_url = "http://#{@basic_auth_username}:#{@basic_auth_password}@#{host}:#{port}#{path}"
         super(authenticated_url)
       else
         # For absolute URLs, parse and add credentials
@@ -38,12 +30,19 @@ module SystemTestHelper
   end
 
   # Wait for Turbo to finish loading
-  # Turbo shows a progress bar during navigation
-  def wait_for_turbo
-    # Wait for the turbo progress bar to disappear
-    expect(page).to have_no_css('.turbo-progress-bar', wait: Capybara.default_max_wait_time)
+  # Turbo shows a progress bar during navigation (Turbo Drive)
+  # For Turbo Frames, we wait for the frame to finish loading
+  def wait_for_turbo(frame_id: nil)
+    if frame_id
+      # Wait for specific Turbo Frame to finish loading
+      # Turbo adds [busy] attribute during frame updates
+      expect(page).to have_no_css("turbo-frame##{frame_id}[busy]", wait: Capybara.default_max_wait_time)
+    else
+      # Wait for the turbo progress bar to disappear (Turbo Drive navigation)
+      expect(page).to have_no_css('.turbo-progress-bar', wait: Capybara.default_max_wait_time)
+    end
   rescue Capybara::ElementNotFound
-    # Progress bar might not appear for fast requests, which is fine
+    # Progress bar or busy state might not appear for fast requests, which is fine
   end
 
   # Wait for AJAX requests to complete

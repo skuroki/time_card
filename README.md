@@ -46,8 +46,8 @@ bin/test
 ```
 
 This command will:
-- Start all required services (app, database, Selenium)
-- Run the complete test suite
+- Start all required services (app, database)
+- Run the complete test suite with Playwright driver
 - Clean up containers after completion
 - Display results with color-coded output
 
@@ -166,7 +166,7 @@ docker-compose -f docker-compose.test.yml down -v
 
 - `RAILS_ENV`: Rails environment (default: `test`)
 - `DATABASE_URL`: PostgreSQL connection string (auto-configured in containers)
-- `SELENIUM_REMOTE_URL`: Selenium WebDriver URL (auto-configured in containers)
+- `PLAYWRIGHT_BROWSERS_PATH`: Playwright browser cache directory (auto-configured in containers)
 - `COVERAGE`: Enable coverage reporting (set to `true`)
 
 ### Configuration Files
@@ -178,7 +178,7 @@ docker-compose -f docker-compose.test.yml down -v
 
 ### Running System Tests
 
-System tests use Capybara and Selenium to test the application through a real browser:
+System tests use Capybara with Playwright driver to test the application through a real browser:
 
 ```bash
 # Run all system tests
@@ -193,6 +193,8 @@ bin/test spec/system/authentication_spec.rb
 # Run report page tests
 bin/test spec/system/report_page_spec.rb
 ```
+
+**Note:** The application uses Playwright driver for browser automation, which provides better performance and reliability compared to Selenium. All existing Capybara test syntax remains unchanged.
 
 ### Running Integration Tests
 
@@ -273,21 +275,17 @@ docker-compose -f docker-compose.test.yml down
 docker-compose -f docker-compose.test.yml up -d
 ```
 
-#### 3. Selenium Connection Errors
+#### 3. Playwright Browser Issues
 
-**Error:** `Selenium::WebDriver::Error::WebDriverError: unable to connect to Selenium`
+**Error:** `Browser not found` or `Playwright executable not found`
 
-**Solution:** Verify Selenium container is running:
+**Solution:** Rebuild Docker image to install Playwright browsers:
 ```bash
-# Check Selenium status
-docker-compose -f docker-compose.test.yml logs selenium
+# Rebuild test container
+docker-compose -f docker-compose.test.yml build test
 
-# Restart Selenium
-docker-compose -f docker-compose.test.yml restart selenium
-
-# Access Selenium UI (for debugging)
-open http://localhost:7900
-# Password: secret
+# Or rebuild without cache
+docker-compose -f docker-compose.test.yml build --no-cache test
 ```
 
 #### 4. Port Already in Use
@@ -296,8 +294,8 @@ open http://localhost:7900
 
 **Solution:** Stop conflicting services:
 ```bash
-# Find process using port 4444 (Selenium)
-lsof -i :4444
+# Find process using port 3000 (Rails test server)
+lsof -i :3000
 
 # Kill the process
 kill -9 <PID>

@@ -2,9 +2,9 @@
 
 ## Overview
 
-This design document outlines the architecture and implementation approach for running end-to-end tests in a containerized environment. The solution uses Docker Compose to orchestrate multiple services (Rails app, PostgreSQL database, and Selenium browser), enabling consistent and isolated test execution across development, CI, and production-like environments.
+This document outlines the architecture and implementation approach for running end-to-end tests in a containerized environment using Capybara with Playwright driver. The solution uses Docker Compose to orchestrate multiple services (Rails app and PostgreSQL database), with Playwright driver integrated into Capybara for lightweight and fast browser automation.
 
-The design leverages existing tools (RSpec, Capybara, Selenium WebDriver) while adding container orchestration and configuration to support headless browser testing in Docker.
+The design leverages Playwright's modern browser automation capabilities through Capybara's familiar API, eliminating the need for a separate Selenium container while maintaining existing test code compatibility. This approach provides better performance and simpler infrastructure without requiring changes to existing Capybara-based tests.
 
 ## Architecture
 
@@ -13,16 +13,14 @@ The design leverages existing tools (RSpec, Capybara, Selenium WebDriver) while 
 ```mermaid
 graph TB
     subgraph "Docker Compose Environment"
-        A[Test Runner Container<br/>Rails + RSpec]
-        B[Selenium Container<br/>Chrome Headless]
+        A[Test Runner Container<br/>Rails + RSpec + Capybara + Playwright Driver]
         C[PostgreSQL Container<br/>Test Database]
         D[Volume: Test Results<br/>Screenshots & Logs]
     end
     
-    A -->|HTTP Requests| B
     A -->|Database Queries| C
     A -->|Write Artifacts| D
-    B -->|Browser Automation| A
+    A -->|Browser Automation<br/>via Playwright Driver| A
     
     E[Developer] -->|docker-compose run test| A
     F[CI Pipeline] -->|docker-compose run test| A
@@ -30,22 +28,19 @@ graph TB
 
 ### Container Architecture
 
-1. **Test Runner Container**: Runs the Rails application in test mode with RSpec
+1. **Test Runner Container**: Runs the Rails application in test mode with RSpec, Capybara, and Playwright driver
    - Based on the existing Dockerfile with test-specific modifications
    - Includes all gems from the test group
-   - Configured to connect to external Selenium and database services
+   - Playwright browsers installed directly in the container
+   - Capybara continues to provide the test DSL
+   - No separate browser container needed
 
-2. **Selenium Container**: Provides browser automation capabilities
-   - Uses official Selenium standalone Chrome image
-   - Runs Chrome in headless mode
-   - Exposes port 4444 for WebDriver connections
-
-3. **Database Container**: Isolated PostgreSQL instance for tests
+2. **Database Container**: Isolated PostgreSQL instance for tests
    - Separate from development database
    - Automatically created and migrated before tests
    - Data is ephemeral (destroyed after test run)
 
-4. **Shared Volumes**: Persist test artifacts
+3. **Shared Volumes**: Persist test artifacts
    - Screenshots from failed tests
    - Test coverage reports
    - Log files for debugging
@@ -71,16 +66,6 @@ services:
       timeout: 5s
       retries: 5
 
-  selenium:
-    image: selenium/standalone-chrome:latest
-    shm_size: 2gb
-    ports:
-      - "4444:4444"
-      - "7900:7900"  # VNC port for debugging
-    environment:
-      - SE_NODE_MAX_SESSIONS=5
-      - SE_NODE_SESSION_TIMEOUT=300
-
   test:
     build:
       context: .
@@ -88,17 +73,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      selenium:
-        condition: service_started
     environment:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:test_password@db:5432/attendance_test
-      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
       TIME_CARD_PASSWORD: ${TIME_CARD_PASSWORD}
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     volumes:
       - .:/rails
       - test_results:/rails/tmp/test_results
       - bundle_cache:/usr/local/bundle
+      - playwright_cache:/ms-playwright
     command: bundle exec rspec
 ```
 
@@ -111,7 +95,7 @@ FROM ruby:3.3.1-slim
 
 WORKDIR /rails
 
-# Install dependencies for testing
+# Install dependencies for testing including Playwright requirements
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -119,12 +103,34 @@ RUN apt-get update -qq && \
     libpq-dev \
     libvips \
     nodejs \
-    postgresql-client && \
+    npm \
+    postgresql-client \
+    # Playwright dependencies
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libcairo2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
+
+# Install Playwright and browsers
+RUN npm install -g playwright && \
+    playwright install chromium --with-deps
 
 # Copy application code
 COPY . .
@@ -167,43 +173,50 @@ mkdir -p tmp/test_results
 exec "$@"
 ```
 
-### RSpec Configuration for Containers
+### RSpec Configuration for Capybara with Playwright Driver
 
 **File**: `spec/support/capybara.rb`
 
 ```ruby
 require 'capybara/rspec'
-require 'selenium-webdriver'
+require 'capybara/playwright'
 
-Capybara.register_driver :selenium_remote_chrome do |app|
-  options = Selenium::WebDriver::Chrome::Options.new
-  options.add_argument('--headless')
-  options.add_argument('--no-sandbox')
-  options.add_argument('--disable-dev-shm-usage')
-  options.add_argument('--disable-gpu')
-  options.add_argument('--window-size=1920,1080')
-
-  Capybara::Selenium::Driver.new(
-    app,
-    browser: :remote,
-    url: ENV['SELENIUM_REMOTE_URL'] || 'http://selenium:4444/wd/hub',
-    options: options
+# Register Playwright driver for Capybara
+Capybara.register_driver :playwright do |app|
+  Capybara::Playwright::Driver.new(app,
+    browser_type: :chromium,
+    headless: true,
+    playwright_cli_executable_path: 'playwright',
+    browser_options: {
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ]
+    },
+    screen: {
+      width: 1920,
+      height: 1080
+    }
   )
 end
 
-Capybara.configure do |config|
-  config.default_driver = :rack_test
-  config.javascript_driver = :selenium_remote_chrome
-  config.default_max_wait_time = 10
-  config.server = :puma, { Silent: true }
-  
-  # Configure server host for container networking
-  config.server_host = '0.0.0.0'
-  config.server_port = 3000
-  config.app_host = "http://#{IPSocket.getaddress(Socket.gethostname)}:3000"
-end
+# Configure Capybara to use Playwright driver
+Capybara.default_driver = :playwright
+Capybara.javascript_driver = :playwright
 
-# Save screenshots on failure
+# Configure Capybara server for container networking
+Capybara.server_host = '0.0.0.0'
+Capybara.server_port = 3000
+Capybara.app_host = "http://#{IPSocket.getaddress(Socket.gethostname)}:3000"
+
+# Configure wait times
+Capybara.default_max_wait_time = 10
+
+# Screenshot configuration
+Capybara.save_path = 'tmp/test_results'
+
+# Automatically save screenshots on failure
 RSpec.configure do |config|
   config.after(:each, type: :system) do |example|
     if example.exception
@@ -211,10 +224,9 @@ RSpec.configure do |config|
       filename = File.basename(meta[:file_path])
       line_number = meta[:line_number]
       screenshot_name = "screenshot-#{filename}-#{line_number}.png"
-      screenshot_path = "tmp/test_results/#{screenshot_name}"
       
-      page.save_screenshot(screenshot_path)
-      puts "Screenshot saved to #{screenshot_path}"
+      page.save_screenshot(screenshot_name)
+      puts "Screenshot saved to #{Capybara.save_path}/#{screenshot_name}"
     end
   end
 end
@@ -230,20 +242,23 @@ module SystemTestHelper
     username = 'skuroki'
     password = ENV['TIME_CARD_PASSWORD']
     
-    page.driver.browser.manage.add_cookie(
-      name: 'auth',
-      value: Base64.strict_encode64("#{username}:#{password}")
-    )
-  end
-
-  def wait_for_ajax
-    Timeout.timeout(Capybara.default_max_wait_time) do
-      loop until page.evaluate_script('jQuery.active').zero?
-    end
+    # Set basic auth for Capybara
+    page.driver.browser.add_init_script("
+      const username = '#{username}';
+      const password = '#{password}';
+      const auth = 'Basic ' + btoa(username + ':' + password);
+      
+      Object.defineProperty(window, 'authHeader', {
+        get: () => auth
+      });
+    ")
   end
 
   def wait_for_turbo
-    expect(page).to have_no_css('.turbo-progress-bar', wait: 5)
+    # Wait for Turbo progress bar to disappear
+    expect(page).not_to have_selector('.turbo-progress-bar', wait: 10)
+  rescue Capybara::ElementNotFound
+    # Progress bar might not appear for fast requests
   end
 end
 
@@ -265,7 +280,7 @@ RSpec.configure do |config|
   
   # For system tests that use JavaScript, disable transactional fixtures
   config.before(:each, type: :system) do
-    driven_by :selenium_remote_chrome
+    driven_by :playwright
     config.use_transactional_fixtures = false
   end
   
@@ -318,9 +333,9 @@ end
 
 **Validates: Requirements 1.4**
 
-### Property 2: Screenshot and Log Preservation on Failure
+### Property 2: Screenshot Preservation on Failure
 
-*For any* system test that fails, the system should automatically save a screenshot and preserve relevant logs in the test results directory.
+*For any* system test that fails, the system should automatically save a screenshot in the test results directory.
 
 **Validates: Requirements 2.3, 2.5, 5.3**
 
@@ -348,9 +363,9 @@ end
 
 **Validates: Requirements 4.3**
 
-### Property 7: Network Operation Retry
+### Property 7: Browser Operation Retry
 
-*For any* network operation (HTTP requests, Selenium commands) that fails due to transient issues, the system should automatically retry with exponential backoff up to a configured maximum.
+*For any* browser operation (page navigation, element interaction) that fails due to transient issues, the system should automatically retry with exponential backoff up to a configured maximum.
 
 **Validates: Requirements 7.2**
 
@@ -375,11 +390,6 @@ end
 - If the database is not available after 30 seconds, the container exits with code 1
 - Error message includes connection details for debugging
 
-**Selenium Connection Errors**:
-- Capybara is configured with retry logic for Selenium connections
-- If Selenium is not available, tests fail with a clear error message
-- The docker-compose configuration ensures Selenium starts before tests
-
 **Missing Environment Variables**:
 - Required environment variables (TIME_CARD_PASSWORD, DATABASE_URL) are validated at startup
 - Missing variables cause immediate failure with descriptive error messages
@@ -388,7 +398,7 @@ end
 ### Test Execution Errors
 
 **Browser Timeout Errors**:
-- Capybara default wait time is set to 10 seconds
+- Capybara default timeout is set to 10 seconds
 - Explicit waits can be used for longer operations
 - Timeout errors include the selector that was being waited for
 
@@ -400,7 +410,7 @@ end
 **Screenshot Capture Failures**:
 - If screenshot capture fails, the error is logged but doesn't fail the test
 - Screenshots are saved to a mounted volume for persistence
-- Fallback to HTML snapshot if screenshot fails
+- Fallback to page HTML snapshot if screenshot fails
 
 ### Resource Cleanup
 
@@ -494,19 +504,19 @@ RSpec.describe 'Attendance Workflow', type: :system do
     
     # Clock in
     click_button '出勤'
-    expect(page).to have_content '出勤時刻'
+    expect(page).to have_content('出勤時刻')
     
     # Start rest
     click_button '休憩開始'
-    expect(page).to have_content '休憩中'
+    expect(page).to have_content('休憩中')
     
     # End rest
     click_button '休憩終了'
-    expect(page).to have_content '勤務中'
+    expect(page).to have_content('勤務中')
     
     # Clock out
     click_button '退勤'
-    expect(page).to have_content '退勤時刻'
+    expect(page).to have_content('退勤時刻')
   end
 end
 ```
@@ -524,8 +534,8 @@ RSpec.describe 'Report Page', type: :system do
     visit report_attendances_path
     
     expect(page).to have_selector('table tbody tr', count: 10)
-    expect(page).to have_content '勤務時間'
-    expect(page).to have_content '休憩時間'
+    expect(page).to have_content('勤務時間')
+    expect(page).to have_content('休憩時間')
   end
 
   it 'filters records by month' do
@@ -533,7 +543,7 @@ RSpec.describe 'Report Page', type: :system do
     
     visit report_attendances_path
     
-    expect(page).not_to have_content old_attendance.work_date.to_s
+    expect(page).not_to have_content(old_attendance.work_date.to_s)
   end
 end
 ```
@@ -614,12 +624,8 @@ spec/
 │   ├── attendance_workflow_spec.rb
 │   ├── report_page_spec.rb
 │   └── authentication_spec.rb
-├── integration/               # Integration tests for container setup
-│   ├── container_startup_spec.rb
-│   ├── database_connection_spec.rb
-│   └── selenium_connection_spec.rb
 ├── support/
-│   ├── capybara.rb           # Capybara configuration
+│   ├── capybara.rb           # Capybara with Playwright driver configuration
 │   ├── system_test_helper.rb # System test helpers
 │   ├── property_testing.rb   # Property test helpers
 │   └── database_cleaner.rb   # Database cleanup configuration
