@@ -16,8 +16,8 @@ module SystemTestHelper
         # Use Capybara.app_host if configured, otherwise fall back to server host/port
         # This ensures compatibility across different deployment environments (e.g., containers)
         base_url = Capybara.app_host || "http://#{Capybara.current_session.server.host}:#{Capybara.current_session.server.port}"
-        authenticated_url = base_url.sub(%r{^https?://}, "http://#{@basic_auth_username}:#{@basic_auth_password}@")
-        authenticated_url = "#{authenticated_url}#{path}"
+        # Preserve the original protocol (http or https) when adding credentials
+        authenticated_url = base_url.sub(%r{^(https?)://}, "\\1://#{@basic_auth_username}:#{@basic_auth_password}@") + path
         super(authenticated_url)
       else
         # For absolute URLs, parse and add credentials
