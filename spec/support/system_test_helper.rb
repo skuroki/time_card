@@ -1,7 +1,5 @@
 # System test helper module for E2E tests
 # Provides authentication and wait helpers for Capybara system tests
-require 'cgi'
-
 module SystemTestHelper
   # Sign in using HTTP Basic Authentication
   # For Playwright driver, include credentials in the URL
@@ -19,14 +17,11 @@ module SystemTestHelper
         # This ensures compatibility across different deployment environments (e.g., containers)
         base_url = Capybara.app_host || "http://#{Capybara.current_session.server.host}:#{Capybara.current_session.server.port}"
         
-        # Properly encode credentials to handle special characters
-        encoded_username = CGI.escape(@basic_auth_username)
-        encoded_password = CGI.escape(@basic_auth_password)
-        
         # Parse the base URL to handle any existing path component
         uri = URI.parse(base_url)
-        uri.user = encoded_username
-        uri.password = encoded_password
+        # URI.user= and URI.password= handle encoding internally
+        uri.user = @basic_auth_username
+        uri.password = @basic_auth_password
         # Merge paths: preserve base path and append the request path
         uri.path = (uri.path.to_s.chomp('/') + path)
         
@@ -34,9 +29,9 @@ module SystemTestHelper
       else
         # For absolute URLs, parse and add credentials
         uri = URI.parse(path)
-        # Properly encode credentials to handle special characters
-        uri.user = CGI.escape(@basic_auth_username)
-        uri.password = CGI.escape(@basic_auth_password)
+        # URI.user= and URI.password= handle encoding internally
+        uri.user = @basic_auth_username
+        uri.password = @basic_auth_password
         super(uri.to_s)
       end
     else
