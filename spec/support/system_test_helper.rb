@@ -23,7 +23,9 @@ module SystemTestHelper
         uri.user = @basic_auth_username
         uri.password = @basic_auth_password
         # Merge paths: preserve base path and append the request path
-        uri.path = (uri.path.to_s.chomp('/') + path)
+        # path always starts with '/' due to the condition on line 15
+        base_path = uri.path.to_s.chomp('/')
+        uri.path = base_path + path
         
         super(uri.to_s)
       else
