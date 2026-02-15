@@ -1,137 +1,137 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
+description: 利用可能な設計成果物に基づいて、機能のための実行可能で依存関係順に並べられた tasks.md を生成します。
 handoffs: 
-  - label: Analyze For Consistency
+  - label: 整合性分析 (Analyze For Consistency)
     agent: speckit.analyze
-    prompt: Run a project analysis for consistency
+    prompt: プロジェクトの整合性分析を実行してください
     send: true
-  - label: Implement Project
+  - label: プロジェクト実装 (Implement Project)
     agent: speckit.implement
-    prompt: Start the implementation in phases
+    prompt: フェーズごとの実装を開始してください
     send: true
 ---
 
-## User Input
+## ユーザー入力
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+先に進む前にユーザー入力を**必ず**考慮してください（入力が空でない場合）。
 
-## Outline
+## 概要
 
-1. **Setup**: Run `.specify/scripts/bash/check-prerequisites.sh --json` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **セットアップ**: リポジトリルートから `.specify/scripts/bash/check-prerequisites.sh --json` を実行し、FEATURE_DIR と AVAILABLE_DOCS リストをパースする。すべてのパスは絶対パスであること。引数内のシングルクォート（例: "I'm Groot"）については、エスケープ構文を使用すること: 例 'I'\''m Groot'（または可能ならダブルクォート: "I'm Groot"）。
 
-2. **Load design documents**: Read from FEATURE_DIR:
-   - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
-   - **Optional**: data-model.md (entities), contracts/ (API endpoints), research.md (decisions), quickstart.md (test scenarios)
-   - Note: Not all projects have all documents. Generate tasks based on what's available.
+2. **設計ドキュメントの読み込み**: FEATURE_DIR から読み込む:
+   - **必須**: plan.md (技術スタック, ライブラリ, 構造), spec.md (優先順位付きユーザーストーリー)
+   - **オプション**: data-model.md (エンティティ), contracts/ (APIエンドポイント), research.md (決定事項), quickstart.md (テストシナリオ)
+   - 注記: すべてのプロジェクトがすべてのドキュメントを持っているわけではありません。利用可能なものに基づいてタスクを生成します。
 
-3. **Execute task generation workflow**:
-   - Load plan.md and extract tech stack, libraries, project structure
-   - Load spec.md and extract user stories with their priorities (P1, P2, P3, etc.)
-   - If data-model.md exists: Extract entities and map to user stories
-   - If contracts/ exists: Map endpoints to user stories
-   - If research.md exists: Extract decisions for setup tasks
-   - Generate tasks organized by user story (see Task Generation Rules below)
-   - Generate dependency graph showing user story completion order
-   - Create parallel execution examples per user story
-   - Validate task completeness (each user story has all needed tasks, independently testable)
+3. **タスク生成ワークフローの実行**:
+   - plan.md を読み込み、技術スタック、ライブラリ、プロジェクト構造を抽出する
+   - spec.md を読み込み、優先順位 (P1, P2, P3...) 付きのユーザーストーリーを抽出する
+   - data-model.md が存在する場合: エンティティを抽出し、ユーザーストーリーにマッピングする
+   - contracts/ が存在する場合: エンドポイントをユーザーストーリーにマッピングする
+   - research.md が存在する場合: セットアップタスクの決定事項を抽出する
+   - ユーザーストーリーごとにタスクを整理して生成する (下記「タスク生成ルール」参照)
+   - ユーザーストーリーの完了順序を示す依存関係グラフを生成する
+   - ユーザーストーリーごとに並列実行の例を作成する
+   - タスクの完全性を検証する (各ユーザーストーリーが必要なすべてのタスクを持ち、独立してテスト可能であること)
 
-4. **Generate tasks.md**: Use `.specify/templates/tasks-template.md` as structure, fill with:
-   - Correct feature name from plan.md
-   - Phase 1: Setup tasks (project initialization)
-   - Phase 2: Foundational tasks (blocking prerequisites for all user stories)
-   - Phase 3+: One phase per user story (in priority order from spec.md)
-   - Each phase includes: story goal, independent test criteria, tests (if requested), implementation tasks
-   - Final Phase: Polish & cross-cutting concerns
-   - All tasks must follow the strict checklist format (see Task Generation Rules below)
-   - Clear file paths for each task
-   - Dependencies section showing story completion order
-   - Parallel execution examples per story
-   - Implementation strategy section (MVP first, incremental delivery)
+4. **tasks.md の生成**: `.specify/templates/tasks-template.md` を構造として使用し、以下を埋める:
+   - plan.md からの正しい機能名
+   - フェーズ 1: セットアップタスク (プロジェクト初期化)
+   - フェーズ 2: 基盤タスク (すべてのユーザーストーリーに対するブロッキング前提条件)
+   - フェーズ 3+: ユーザーストーリーごとのフェーズ (spec.md の優先順位順)
+   - 各フェーズの内容: ストーリーゴール、独立したテスト基準、テスト (要求された場合)、実装タスク
+   - 最終フェーズ: 仕上げと横断的関心事
+   - すべてのタスクは厳格なチェックリスト形式に従わなければならない (下記「タスク生成ルール」参照)
+   - 各タスクの明確なファイルパス
+   - ストーリー完了順序を示す依存関係セクション
+   - ストーリーごとの並列実行例
+   - 実装戦略セクション (MVPファースト、増分デリバリー)
 
-5. **Report**: Output path to generated tasks.md and summary:
-   - Total task count
-   - Task count per user story
-   - Parallel opportunities identified
-   - Independent test criteria for each story
-   - Suggested MVP scope (typically just User Story 1)
-   - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
+5. **レポート**: 生成された tasks.md へのパスと以下を要約出力:
+   - 総タスク数
+   - ユーザーストーリーごとのタスク数
+   - 特定された並列機会
+   - 各ストーリーの独立したテスト基準
+   - 提案されるMVPスコープ (通常はユーザーストーリー1のみ)
+   - フォーマット検証: すべてのタスクがチェックリスト形式（チェックボックス、ID、ラベル、ファイルパス）に従っていることを確認
 
-Context for task generation: $ARGUMENTS
+タスク生成のためのコンテキスト: $ARGUMENTS
 
-The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
+tasks.md は即座に実行可能であるべきです - 各タスクはLLMが追加のコンテキストなしで完了できるほど具体的でなければなりません。
 
-## Task Generation Rules
+## タスク生成ルール
 
-**CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
+**重要**: 独立した実装とテストを可能にするため、タスクはユーザーストーリーごとに整理されなければなりません(MUST)。
 
-**Tests are OPTIONAL**: Only generate test tasks if explicitly requested in the feature specification or if user requests TDD approach.
+**テストはオプション**: 機能仕様書で明示的に要求された場合、またはユーザーがTDDアプローチを要求した場合のみ、テストタスクを生成してください。
 
-### Checklist Format (REQUIRED)
+### チェックリスト形式 (必須)
 
-Every task MUST strictly follow this format:
+すべてのタスクは厳密にこの形式に従わなければなりません:
 
 ```text
-- [ ] [TaskID] [P?] [Story?] Description with file path
+- [ ] [TaskID] [P?] [Story?] ファイルパス付きの説明
 ```
 
-**Format Components**:
+**フォーマット構成要素**:
 
-1. **Checkbox**: ALWAYS start with `- [ ]` (markdown checkbox)
-2. **Task ID**: Sequential number (T001, T002, T003...) in execution order
-3. **[P] marker**: Include ONLY if task is parallelizable (different files, no dependencies on incomplete tasks)
-4. **[Story] label**: REQUIRED for user story phase tasks only
-   - Format: [US1], [US2], [US3], etc. (maps to user stories from spec.md)
-   - Setup phase: NO story label
-   - Foundational phase: NO story label  
-   - User Story phases: MUST have story label
-   - Polish phase: NO story label
-5. **Description**: Clear action with exact file path
+1. **チェックボックス**: 常に `- [ ]` (markdownチェックボックス) で開始する
+2. **タスクID**: 実行順の連番 (T001, T002, T003...)
+3. **[P] マーカー**: タスクが並列可能 (異なるファイル、未完了タスクへの依存なし) な場合のみ含める
+4. **[Story] ラベル**: ユーザーストーリーフェーズのタスクにのみ必須
+   - 形式: [US1], [US2], [US3] など (spec.md のユーザーストーリーにマップ)
+   - セットアップフェーズ: ストーリーラベルなし
+   - 基盤フェーズ: ストーリーラベルなし
+   - ユーザーストーリーフェーズ: ストーリーラベル必須(MUST)
+   - 仕上げフェーズ: ストーリーラベルなし
+5. **説明**: 正確なファイルパスを含む明確なアクション
 
-**Examples**:
+**例**:
 
-- ✅ CORRECT: `- [ ] T001 Create project structure per implementation plan`
-- ✅ CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
-- ✅ CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
-- ✅ CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
-- ❌ WRONG: `- [ ] Create User model` (missing ID and Story label)
-- ❌ WRONG: `T001 [US1] Create model` (missing checkbox)
-- ❌ WRONG: `- [ ] [US1] Create User model` (missing Task ID)
-- ❌ WRONG: `- [ ] T001 [US1] Create model` (missing file path)
+- ✅ 正解: `- [ ] T001 実装計画に従ってプロジェクト構造を作成 .specify/scripts/setup.sh`
+- ✅ 正解: `- [ ] T005 [P] 認証ミドルウェアを実装 src/middleware/auth.py`
+- ✅ 正解: `- [ ] T012 [P] [US1] Userモデルを作成 src/models/user.py`
+- ✅ 正解: `- [ ] T014 [US1] UserServiceを実装 src/services/user_service.py`
+- ❌ 間違い: `- [ ] Userモデルを作成` (IDとストーリーラベル欠落)
+- ❌ 間違い: `T001 [US1] モデルを作成` (チェックボックス欠落)
+- ❌ 間違い: `- [ ] [US1] Userモデルを作成` (タスクID欠落)
+- ❌ 間違い: `- [ ] T001 [US1] モデルを作成` (ファイルパス欠落)
 
-### Task Organization
+### タスク構成
 
-1. **From User Stories (spec.md)** - PRIMARY ORGANIZATION:
-   - Each user story (P1, P2, P3...) gets its own phase
-   - Map all related components to their story:
-     - Models needed for that story
-     - Services needed for that story
-     - Endpoints/UI needed for that story
-     - If tests requested: Tests specific to that story
-   - Mark story dependencies (most stories should be independent)
+1. **ユーザーストーリーから (spec.md)** - 主要な構成:
+   - 各ユーザーストーリー (P1, P2, P3...) は独自のフェーズを持つ
+   - 関連するすべてのコンポーネントをそのストーリーにマッピング:
+     - そのストーリーに必要なモデル
+     - そのストーリーに必要なサービス
+     - そのストーリーに必要なエンドポイント/UI
+     - テストが要求された場合: そのストーリーに固有のテスト
+   - ストーリーの依存関係をマークする (ほとんどのストーリーは独立しているべき)
 
-2. **From Contracts**:
-   - Map each contract/endpoint → to the user story it serves
-   - If tests requested: Each contract → contract test task [P] before implementation in that story's phase
+2. **コントラクトから**:
+   - 各コントラクト/エンドポイント → それが提供するユーザーストーリーへマッピング
+   - テストが要求された場合: 各コントラクト → そのストーリーフェーズの実装前のコントラクトテストタスク [P]
 
-3. **From Data Model**:
-   - Map each entity to the user story(ies) that need it
-   - If entity serves multiple stories: Put in earliest story or Setup phase
-   - Relationships → service layer tasks in appropriate story phase
+3. **データモデルから**:
+   - 各エンティティをそれを必要とするユーザーストーリーへマッピング
+   - エンティティが複数のストーリーに提供する場合: 最も早いストーリーまたはセットアップフェーズに配置
+   - 関係 → 適切なストーリーフェーズのサービスレイヤータスクへ
 
-4. **From Setup/Infrastructure**:
-   - Shared infrastructure → Setup phase (Phase 1)
-   - Foundational/blocking tasks → Foundational phase (Phase 2)
-   - Story-specific setup → within that story's phase
+4. **セットアップ/インフラから**:
+   - 共有インフラ → セットアップフェーズ (Phase 1)
+   - 基盤/ブロッキングタスク → 基盤フェーズ (Phase 2)
+   - ストーリー固有のセットアップ → そのストーリーのフェーズ内へ
 
-### Phase Structure
+### フェーズ構造
 
-- **Phase 1**: Setup (project initialization)
-- **Phase 2**: Foundational (blocking prerequisites - MUST complete before user stories)
-- **Phase 3+**: User Stories in priority order (P1, P2, P3...)
-  - Within each story: Tests (if requested) → Models → Services → Endpoints → Integration
-  - Each phase should be a complete, independently testable increment
-- **Final Phase**: Polish & Cross-Cutting Concerns
+- **Phase 1**: セットアップ (プロジェクト初期化)
+- **Phase 2**: 基盤 (ブロッキング前提条件 - ユーザーストーリーの前に完了しなければならない)
+- **Phase 3+**: 優先順位順のユーザーストーリー (P1, P2, P3...)
+  - 各ストーリー内: テスト (要求された場合) → モデル → サービス → エンドポイント → 統合
+  - 各フェーズは、完全で、独立してテスト可能な増分であるべき
+- **Final Phase**: 仕上げと横断的関心事

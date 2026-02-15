@@ -163,6 +163,7 @@ extract_plan_field() {
         sed "s|^\*\*${field_pattern}\*\*: ||" | \
         sed 's/^[ \t]*//;s/[ \t]*$//' | \
         grep -v "NEEDS CLARIFICATION" | \
+        grep -v "明確化が必要" | \
         grep -v "^N/A$" || echo ""
 }
 
@@ -181,10 +182,18 @@ parse_plan_data() {
     
     log_info "Parsing plan data from $plan_file"
     
+    # Try English keys first, then Japanese keys
     NEW_LANG=$(extract_plan_field "Language/Version" "$plan_file")
+    [[ -z "$NEW_LANG" ]] && NEW_LANG=$(extract_plan_field "言語/バージョン" "$plan_file")
+
     NEW_FRAMEWORK=$(extract_plan_field "Primary Dependencies" "$plan_file")
+    [[ -z "$NEW_FRAMEWORK" ]] && NEW_FRAMEWORK=$(extract_plan_field "主要な依存関係" "$plan_file")
+
     NEW_DB=$(extract_plan_field "Storage" "$plan_file")
+    [[ -z "$NEW_DB" ]] && NEW_DB=$(extract_plan_field "ストレージ" "$plan_file")
+
     NEW_PROJECT_TYPE=$(extract_plan_field "Project Type" "$plan_file")
+    [[ -z "$NEW_PROJECT_TYPE" ]] && NEW_PROJECT_TYPE=$(extract_plan_field "プロジェクトタイプ" "$plan_file")
     
     # Log what we found
     if [[ -n "$NEW_LANG" ]]; then
@@ -212,8 +221,8 @@ format_technology_stack() {
     local parts=()
     
     # Add non-empty parts
-    [[ -n "$lang" && "$lang" != "NEEDS CLARIFICATION" ]] && parts+=("$lang")
-    [[ -n "$framework" && "$framework" != "NEEDS CLARIFICATION" && "$framework" != "N/A" ]] && parts+=("$framework")
+    [[ -n "$lang" && "$lang" != "NEEDS CLARIFICATION" && "$lang" != "明確化が必要" ]] && parts+=("$lang")
+    [[ -n "$framework" && "$framework" != "NEEDS CLARIFICATION" && "$framework" != "明確化が必要" && "$framework" != "N/A" ]] && parts+=("$framework")
     
     # Join with proper formatting
     if [[ ${#parts[@]} -eq 0 ]]; then
@@ -333,8 +342,11 @@ create_new_agent_file() {
     local substitutions=(
         "s|\[PROJECT NAME\]|$project_name|"
         "s|\[DATE\]|$current_date|"
+        "s|\[すべての plan.md ファイルから抽出\]|$tech_stack|"
         "s|\[EXTRACTED FROM ALL PLAN.MD FILES\]|$tech_stack|"
+        "s|\[計画からの実際の構造\]|$project_structure|g"
         "s|\[ACTUAL STRUCTURE FROM PLANS\]|$project_structure|g"
+        "s|\[使用技術に関連するコマンドのみ\]|$commands|"
         "s|\[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES\]|$commands|"
         "s|\[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE\]|$language_conventions|"
         "s|\[LAST 3 FEATURES AND WHAT THEY ADDED\]|$recent_change|"
@@ -399,11 +411,15 @@ update_existing_agent_file() {
     local has_active_technologies=0
     local has_recent_changes=0
     
-    if grep -q "^## Active Technologies" "$target_file" 2>/dev/null; then
+    if grep -q "^## 使用技術 (Active Technologies)" "$target_file" 2>/dev/null; then
+        has_active_technologies=1
+    elif grep -q "^## Active Technologies" "$target_file" 2>/dev/null; then
         has_active_technologies=1
     fi
     
-    if grep -q "^## Recent Changes" "$target_file" 2>/dev/null; then
+    if grep -q "^## 最近の変更 (Recent Changes)" "$target_file" 2>/dev/null; then
+        has_recent_changes=1
+    elif grep -q "^## Recent Changes" "$target_file" 2>/dev/null; then
         has_recent_changes=1
     fi
     
@@ -417,7 +433,7 @@ update_existing_agent_file() {
     
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Handle Active Technologies section
-        if [[ "$line" == "## Active Technologies" ]]; then
+        if [[ "$line" == "## Active Technologies" ]] || [[ "$line" == "## 使用技術 (Active Technologies)" ]]; then
             echo "$line" >> "$temp_file"
             in_tech_section=true
             continue
@@ -441,7 +457,7 @@ update_existing_agent_file() {
         fi
         
         # Handle Recent Changes section
-        if [[ "$line" == "## Recent Changes" ]]; then
+        if [[ "$line" == "## Recent Changes" ]] || [[ "$line" == "## 最近の変更 (Recent Changes)" ]]; then
             echo "$line" >> "$temp_file"
             # Add new change entry right after the heading
             if [[ -n "$new_change_entry" ]]; then
@@ -480,14 +496,14 @@ update_existing_agent_file() {
     # If sections don't exist, add them at the end of the file
     if [[ $has_active_technologies -eq 0 ]] && [[ ${#new_tech_entries[@]} -gt 0 ]]; then
         echo "" >> "$temp_file"
-        echo "## Active Technologies" >> "$temp_file"
+        echo "## 使用技術 (Active Technologies)" >> "$temp_file"
         printf '%s\n' "${new_tech_entries[@]}" >> "$temp_file"
         tech_entries_added=true
     fi
     
     if [[ $has_recent_changes -eq 0 ]] && [[ -n "$new_change_entry" ]]; then
         echo "" >> "$temp_file"
-        echo "## Recent Changes" >> "$temp_file"
+        echo "## 最近の変更 (Recent Changes)" >> "$temp_file"
         echo "$new_change_entry" >> "$temp_file"
         changes_entries_added=true
     fi

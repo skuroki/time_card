@@ -1,52 +1,53 @@
 ---
 
-description: "Task list template for feature implementation"
+description: "機能実装のためのタスクリストテンプレート"
 ---
 
-# Tasks: [FEATURE NAME]
+# タスク: [FEATURE NAME]
 
-**Input**: Design documents from `/specs/[###-feature-name]/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**入力**: `/specs/[###-feature-name]/` の設計ドキュメント
+**前提条件**: plan.md (必須)、spec.md (ユーザーストーリーに必須)、research.md、data-model.md、contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**テスト**: 以下の例にはテストタスクが含まれています。テストは**任意**です - 機能仕様書で明示的に要求された場合のみ含めてください。
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**構成**: タスクは各ストーリーの独立した実装とテストを可能にするために、ユーザーストーリーごとにグループ化されています。
 
-## Format: `[ID] [P?] [Story] Description`
+## フォーマット: `[ID] [P?] [Story] 説明`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- **[P]**: 並行実行可能 (異なるファイル、依存関係なし)
+- **[Story]**: このタスクが属するユーザーストーリー (例: US1, US2, US3)
+- 説明には正確なファイルパスを含める
 
-## Path Conventions
+## パス規約
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **シングルプロジェクト**: リポジトリルートの `src/`, `tests/`
+- **Webアプリ**: `backend/src/`, `frontend/src/`
+- **モバイル**: `api/src/`, `ios/src/` または `android/src/`
+- 以下に示すパスはシングルプロジェクトを想定しています - plan.md の構造に基づいて調整してください
 
 <!-- 
   ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  重要: 以下のタスクは説明目的の「サンプルタスク」です。
   
-  The /speckit.tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
+  /speckit.tasks コマンドは、これらを以下に基づいて実際のタスクに
+  置き換えなければなりません(MUST):
+  - spec.md からのユーザーストーリー (優先順位 P1, P2, P3... を伴う)
+  - plan.md からの機能要件
+  - data-model.md からのエンティティ
+  - contracts/ からのエンドポイント
   
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
+  タスクはユーザーストーリーごとに整理されなければなりません(MUST)。各ストーリーが以下のようにできるようにするためです:
+  - 独立して実装可能
+  - 独立してテスト可能
+  - MVPの増分として提供可能
   
-  DO NOT keep these sample tasks in the generated tasks.md file.
+  生成された tasks.md ファイルにこれらのサンプルタスクを残さないでください。
   ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## フェーズ 1: セットアップ (共有インフラ)
 
-**Purpose**: Project initialization and basic structure
+**目的**: プロジェクトの初期化と基本構造
 
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
