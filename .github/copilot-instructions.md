@@ -45,18 +45,6 @@ resources :rest_finishes
 
 ## テスト方針
 
-### テストデータの作成
-
-**factory_bot は使用禁止。** テストデータは必ず ActiveRecord の標準機能（`Model.create!` など）で作成する。
-
-```ruby
-# NG
-let(:attendance) { create(:attendance) }
-
-# OK
-let(:attendance) { Attendance.create!(work_date: Date.today, started_at: Time.current) }
-```
-
 ### テスト種別と配置
 
 ```
