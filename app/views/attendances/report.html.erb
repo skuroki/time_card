@@ -21,7 +21,7 @@
     <% end %>
     <tr>
       <th colspan=4>合計</th>
-      <td><%= @attendances.map(&:length).sum.then { |t| (t / 3600).to_i.to_s + ':' + (t.to_i % 3600 / 60).to_s } %></td>
+      <td><%= @attendances.map(&:length).sum.then { |t| (t / 3600.0).round(2) } %></td>
     </tr>
   </tbody>
 </table>
