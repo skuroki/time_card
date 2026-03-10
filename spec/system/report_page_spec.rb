@@ -278,7 +278,7 @@ RSpec.describe 'Report Page', type: :system do
         
         # Total row: 21 hours
         expect(rows[3]).to have_content('合計')
-        expect(rows[3]).to have_content('21.0')
+        expect(rows[3]).to have_content('21:00 (21.0)')
       end
     end
 
@@ -313,9 +313,9 @@ RSpec.describe 'Report Page', type: :system do
       within('table tbody') do
         rows = all('tr')
 
-        # Total row: 12.5 + 12.67 = 25.17 hours
+        # Total row: 12.5 + 12.67 = 25.17 hours (25:10 in hh:mm)
         expect(rows[2]).to have_content('合計')
-        expect(rows[2]).to have_content('25.17')
+        expect(rows[2]).to have_content('25:10 (25.17)')
       end
     end
 
