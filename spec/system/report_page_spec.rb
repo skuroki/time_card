@@ -278,7 +278,44 @@ RSpec.describe 'Report Page', type: :system do
         
         # Total row: 21 hours
         expect(rows[3]).to have_content('合計')
-        expect(rows[3]).to have_content('21:')
+        expect(rows[3]).to have_content('21:00 (21.0)')
+      end
+    end
+
+    it 'displays total working hours in decimal format' do
+      target_month = 7.days.ago
+      start_of_month = target_month.beginning_of_month
+
+      # Day 1: 12 hours 30 minutes (9:00 - 21:30, no rest) -> 12.5 hours
+      date1 = start_of_month
+      att1 = create(:attendance,
+        work_date: date1,
+        started_at: Time.zone.local(date1.year, date1.month, date1.day, 9, 0, 0)
+      )
+      create(:clock_out,
+        attendance: att1,
+        finished_at: Time.zone.local(date1.year, date1.month, date1.day, 21, 30, 0)
+      )
+
+      # Day 2: 12 hours 40 minutes (9:00 - 21:40, no rest) -> 12.67 hours
+      date2 = start_of_month + 1.day
+      att2 = create(:attendance,
+        work_date: date2,
+        started_at: Time.zone.local(date2.year, date2.month, date2.day, 9, 0, 0)
+      )
+      create(:clock_out,
+        attendance: att2,
+        finished_at: Time.zone.local(date2.year, date2.month, date2.day, 21, 40, 0)
+      )
+
+      visit report_attendances_path
+
+      within('table tbody') do
+        rows = all('tr')
+
+        # Total row: 12.5 + 12.67 = 25.17 hours (25:10 in hh:mm)
+        expect(rows[2]).to have_content('合計')
+        expect(rows[2]).to have_content('25:10 (25.17)')
       end
     end
 
